@@ -1,7 +1,8 @@
 ---
 import Icono from "../ui/Icono.astro";
 import { racha } from "../../data/perfil";
-import { nivelRacha, siguienteHito } from "./formato";
+import { nivelRacha, siguienteHito } from "../../lib/racha";
+import { MINIMO_DEPOSITO_UFV } from "../../lib/ufv";
 
 const hito = siguienteHito(racha.dias);
 const indiceHoy = racha.semana.findIndex((d) => d.estado === "hoy");
@@ -60,7 +61,7 @@ const enRiesgo = !racha.ayerCumplido;
   </div>
 </div>
 
-<!-- Recuperar / ahorrar hoy -->
+<!-- Recuperar / ahorrar hoy: se cumple comprando UFV en la pestaña UFVs -->
 <div data-tarjeta-ahorrar hidden={racha.hoyCumplido} class="rounded-2xl border-2 border-tinta bg-alerta-suave p-4 shadow-duro">
   <div class="flex items-start gap-3">
     <span class="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-alerta">
@@ -68,11 +69,11 @@ const enRiesgo = !racha.ayerCumplido;
     </span>
     <div class="min-w-0 flex-1">
       <p data-ahorrar-titulo class="font-extrabold">
-        {enRiesgo ? "¡Recupera tu racha!" : "Ahorra lo de hoy"}
+        {enRiesgo ? "Recupera tu racha" : "Ahorra lo de hoy"}
       </p>
       <p class="text-xs leading-snug">
         <span data-ahorrar-detalle>
-          {enRiesgo ? "Ayer no depositaste. Pon lo de ayer + lo de hoy antes de que termine el día." : "Deposita tu monto diario o compra 1 UFV."}
+          {enRiesgo ? "Ayer no ahorraste. Cubre lo de ayer + lo de hoy antes de que termine el día." : "Ahorra tu monto diario o compra al menos 1 UFV."}
         </span>
         Te quedan <b data-cuenta-atras>--:--</b> h.
       </p>
@@ -91,29 +92,29 @@ const enRiesgo = !racha.ayerCumplido;
     </span>
   </div>
 
-  <button type="button" data-ahorrar class="btn-accion mt-3 w-full py-3">
-    <Icono nombre="llama" class="size-5" />
-    <span data-ahorrar-boton>{enRiesgo ? "Recuperar racha" : "Ahorrar hoy"}</span>
-    · Bs <span data-monto-total>{racha.montoDiario * (enRiesgo ? 2 : 1)}</span>
-  </button>
+  <a href="/ufvs#operaciones" class="btn-accion mt-3 w-full py-3 text-sm">
+    <Icono nombre="ufvs" class="size-4" />
+    <span data-ahorrar-boton>{enRiesgo ? "Comprar UFV y recuperar racha" : "Comprar UFV de hoy"}</span>
+  </a>
+  <p class="mt-2 text-center text-[11px] text-tinta-suave">
+    Compra por QR desde {MINIMO_DEPOSITO_UFV} UFV: cuenta como tu ahorro del día.
+  </p>
 </div>
 
 <p class="flex items-start gap-1.5 px-1 text-xs leading-snug text-tinta-suave">
   <Icono nombre="estrella" class="mt-px size-3.5 shrink-0 fill-alerta text-tinta" trazo={1.75} />
   <span>
-    Ganas puntos por <b class="text-tinta">constancia, no por monto</b>: +{racha.puntosPorDia} pts por cada día.
-    Basta con tu monto diario o comprar 1 UFV.
+    Ganas puntos por <b class="text-tinta">constancia, no por monto</b>: +{racha.puntosPorDia} pts por cada día de racha.
   </span>
 </p>
 
 <script>
-  import { ahorrarHoy, alCambiar } from "./estado";
-  import { nivelRacha, siguienteHito } from "./formato";
-  import { avisar } from "./navegador";
+  import { alCambiar } from "./estado";
+  import { nivelRacha, siguienteHito } from "../../lib/racha";
 
   const todos = (sel: string) => document.querySelectorAll<HTMLElement>(sel);
-  const uno = (sel: string) => document.querySelector<HTMLElement>(sel);
-  const indiceHoy = Number(uno("[data-indice-hoy]")?.dataset.indiceHoy ?? -1);
+  const uno = (sel: string) => document.querySelector<HTMLElement>(sel)!;
+  const indiceHoy = Number(uno("[data-indice-hoy]").dataset.indiceHoy ?? -1);
 
   alCambiar((e) => {
     const enRiesgo = !e.ayerCumplido;
@@ -126,46 +127,30 @@ const enRiesgo = !racha.ayerCumplido;
     );
     todos("[data-racha-nivel]").forEach((el) => (el.textContent = nivelRacha(e.dias)));
 
-    // Semana: ayer y hoy cambian al ahorrar
-    const ayer = uno(`[data-dia="${indiceHoy - 1}"]`);
-    const hoy = uno(`[data-dia="${indiceHoy}"]`);
+    // Semana: ayer y hoy cambian al comprar UFV
+    const ayer = document.querySelector<HTMLElement>(`[data-dia="${indiceHoy - 1}"]`);
+    const hoy = document.querySelector<HTMLElement>(`[data-dia="${indiceHoy}"]`);
     if (ayer) ayer.dataset.estado = e.ayerCumplido ? "hecho" : "fallo";
     if (hoy) hoy.dataset.estado = e.hoyCumplido ? "hecho" : "hoy";
 
     // Bonus
     const hito = siguienteHito(e.dias);
-    uno("[data-hito-texto]")!.textContent =
+    uno("[data-hito-texto]").textContent =
       hito.faltan === 1
-        ? `¡Mañana llegas a tu bonus de ${hito.dia} días!`
+        ? `Mañana llegas a tu bonus de ${hito.dia} días`
         : `Faltan ${hito.faltan} días para tu bonus de ${hito.dia} días`;
-    uno("[data-hito-puntos]")!.textContent = `+${hito.puntos} pts`;
-    uno("[data-hito-barra]")!.style.width = `${hito.avance * 100}%`;
+    uno("[data-hito-puntos]").textContent = `+${hito.puntos} pts`;
+    uno("[data-hito-barra]").style.width = `${hito.avance * 100}%`;
 
     // Tarjeta para ahorrar / recuperar
-    uno("[data-tarjeta-ahorrar]")!.hidden = e.hoyCumplido;
-    uno("[data-parte-ayer]")!.hidden = !enRiesgo;
-    uno("[data-ahorrar-titulo]")!.textContent = enRiesgo ? "¡Recupera tu racha!" : "Ahorra lo de hoy";
-    uno("[data-ahorrar-detalle]")!.textContent = enRiesgo
-      ? "Ayer no depositaste. Pon lo de ayer + lo de hoy antes de que termine el día."
-      : "Deposita tu monto diario o compra 1 UFV.";
-    uno("[data-ahorrar-boton]")!.textContent = enRiesgo ? "Recuperar racha" : "Ahorrar hoy";
+    uno("[data-tarjeta-ahorrar]").hidden = e.hoyCumplido;
+    uno("[data-parte-ayer]").hidden = !enRiesgo;
+    uno("[data-ahorrar-titulo]").textContent = enRiesgo ? "Recupera tu racha" : "Ahorra lo de hoy";
+    uno("[data-ahorrar-detalle]").textContent = enRiesgo
+      ? "Ayer no ahorraste. Cubre lo de ayer + lo de hoy antes de que termine el día."
+      : "Ahorra tu monto diario o compra al menos 1 UFV.";
+    uno("[data-ahorrar-boton]").textContent = enRiesgo ? "Comprar UFV y recuperar racha" : "Comprar UFV de hoy";
     todos("[data-monto-dia]").forEach((el) => (el.textContent = String(e.montoDiario)));
-    uno("[data-monto-total]")!.textContent = String(e.montoDiario * (enRiesgo ? 2 : 1));
-
-    // Mensaje de Cecilio
-    uno('[data-cecilio="riesgo"]')!.hidden = !enRiesgo;
-    uno('[data-cecilio="bien"]')!.hidden = enRiesgo;
-  });
-
-  // Todos los botones "ahorrar" (tarjeta y reto) hacen lo mismo
-  document.addEventListener("click", (ev) => {
-    if (!(ev.target as HTMLElement).closest("[data-ahorrar]")) return;
-    const r = ahorrarHoy();
-    if (!r) return;
-    const extra = r.bonus ? ` ¡Bonus de racha +${r.bonus}!` : "";
-    avisar(
-      `${r.recupera ? "¡Racha recuperada!" : "¡Ahorro de hoy listo!"} Bs ${r.monto} · +${r.puntos} pts 🔥${extra}`,
-    );
   });
 
   // Cuenta atrás hasta medianoche

@@ -1,4 +1,4 @@
-import type { AjustesSeguridad, CategoriaPremio, DiaRacha, Premio, Reto } from "../types";
+import type { CategoriaPremio, DiaRacha, Premio, Reto } from "../types";
 
 /*
  * Datos de ejemplo de la sección Perfil (incluye la racha).
@@ -47,7 +47,7 @@ export const retos: Reto[] = [
     detalle: "o compra 1 UFV",
     puntos: 50,
     icono: "llama",
-    accion: { tipo: "ahorrar" },
+    accion: { tipo: "enlace", href: "/ufvs#operaciones" },
   },
   {
     id: "motivo-pagos",
@@ -70,7 +70,7 @@ export const retos: Reto[] = [
     titulo: "Transfiere a tu cuenta UFV",
     puntos: 100,
     icono: "rayo",
-    accion: { tipo: "enlace", href: "/ufvs" },
+    accion: { tipo: "enlace", href: "/ufvs#operaciones" },
   },
 ];
 
@@ -90,7 +90,7 @@ export const premios: Premio[] = [
     costo: 500,
     icono: "celular",
     categoria: "megas",
-    mensaje: "Te llegará 1 GB de megas por SMS 📱",
+    mensaje: "Te llegará 1 GB de megas por SMS",
   },
   {
     id: "megas-3",
@@ -99,7 +99,7 @@ export const premios: Premio[] = [
     costo: 1200,
     icono: "celular",
     categoria: "megas",
-    mensaje: "Te llegarán 3 GB de megas por SMS 📱",
+    mensaje: "Te llegarán 3 GB de megas por SMS",
   },
   {
     id: "cafe",
@@ -108,7 +108,7 @@ export const premios: Premio[] = [
     costo: 800,
     icono: "etiqueta",
     categoria: "descuentos",
-    mensaje: "Cupón del 20% guardado en tu perfil ☕",
+    mensaje: "Cupón del 20% guardado en tu perfil",
   },
   {
     id: "cine",
@@ -117,7 +117,7 @@ export const premios: Premio[] = [
     costo: 1500,
     icono: "etiqueta",
     categoria: "descuentos",
-    mensaje: "Cupón 2x1 de cine guardado 🍿",
+    mensaje: "Cupón 2x1 de cine guardado",
   },
   {
     id: "libreria",
@@ -126,7 +126,7 @@ export const premios: Premio[] = [
     costo: 600,
     icono: "etiqueta",
     categoria: "descuentos",
-    mensaje: "Cupón del 15% en librería guardado 📚",
+    mensaje: "Cupón del 15% en librería guardado",
   },
   {
     id: "ufv-5",
@@ -135,7 +135,7 @@ export const premios: Premio[] = [
     costo: 1200,
     icono: "moneda",
     categoria: "ufv",
-    mensaje: "Sumamos 5 UFV a tu meta 💰",
+    mensaje: "Sumamos 5 UFV a tu meta",
   },
   {
     id: "ufv-15",
@@ -144,13 +144,7 @@ export const premios: Premio[] = [
     costo: 3000,
     icono: "moneda",
     categoria: "ufv",
-    mensaje: "Sumamos 15 UFV a tu meta 💰",
+    mensaje: "Sumamos 15 UFV a tu meta",
   },
 ];
 
-export const seguridadInicial: AjustesSeguridad = {
-  pin: true,
-  biometria: false,
-  pinEnPagos: true,
-  alertasSesion: true,
-};

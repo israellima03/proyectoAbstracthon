@@ -23,11 +23,8 @@ export interface DiaRacha {
   estado: EstadoDia;
 }
 
-/** Qué pasa al tocar el botón de un reto. */
-export type AccionReto =
-  | { tipo: "ahorrar" }
-  | { tipo: "hoja"; hoja: string }
-  | { tipo: "enlace"; href: string };
+/** Qué pasa al tocar el botón de un reto (por ahora, ir a otra pestaña). */
+export type AccionReto = { tipo: "enlace"; href: string };
 
 export interface Reto {
   id: string;
@@ -51,13 +48,6 @@ export interface Premio {
   icono: NombreIcono;
   categoria: CategoriaPremio;
   mensaje: string;
-}
-
-export interface AjustesSeguridad {
-  pin: boolean;
-  biometria: boolean;
-  pinEnPagos: boolean;
-  alertasSesion: boolean;
 }
 
 /**

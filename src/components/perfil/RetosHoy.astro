@@ -7,7 +7,7 @@ const boton =
 ---
 
 <div class="flex flex-col gap-2.5">
-  <h3 class="text-xl font-extrabold">Retos de hoy ✅</h3>
+  <h3 class="text-xl font-extrabold">Retos de hoy</h3>
   <ul class="flex flex-col gap-2.5">
     {
       retos.map((r) => (
@@ -31,21 +31,9 @@ const boton =
             </p>
           </div>
           <span class="hidden text-xs font-extrabold text-exito group-data-[listo=true]:block">Listo</span>
-          {r.accion.tipo === "ahorrar" && (
-            <button type="button" data-ahorrar aria-label={r.titulo} class={boton}>
-              <Icono nombre="flecha" class="size-4" />
-            </button>
-          )}
-          {r.accion.tipo === "hoja" && (
-            <button type="button" data-abrir={r.accion.hoja} aria-label={r.titulo} class={boton}>
-              <Icono nombre="flecha" class="size-4" />
-            </button>
-          )}
-          {r.accion.tipo === "enlace" && (
-            <a href={r.accion.href} aria-label={r.titulo} class={boton}>
-              <Icono nombre="flecha" class="size-4" />
-            </a>
-          )}
+          <a href={r.accion.href} aria-label={r.titulo} class={boton}>
+            <Icono nombre="flecha" class="size-4" />
+          </a>
         </li>
       ))
     }
