@@ -1,10 +1,396 @@
 ---
 import AppLayout from "../../layouts/AppLayout.astro";
-import Letrero from "../../components/ui/Letrero.astro";
-// Importa aquí tus componentes desde src/components/pagos/
+import TutorialModal from "../../components/pagos/TutorialModal.astro";
+import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astro";
 ---
 
-<AppLayout titulo="Pagos">
-  <!-- TODO (pagos): borrar el Letrero y poner el contenido de la sección -->
-  <Letrero titulo="Pagos" icono="pagos" descripcion="Paga desde tus bolsillos" carpeta="pagos" />
+<AppLayout titulo="Pagos y Reportes">
+  <div class="px-4 pt-5 pb-24 text-zinc-900">
+    <!-- Barra superior -->
+    <header class="flex flex-wrap items-center justify-between gap-2">
+      <div class="min-w-0">
+        <h1 class="text-2xl font-black tracking-tight">Pagos</h1>
+        <p class="text-[11px] font-semibold text-zinc-600">Extractos y control inteligente</p>
+      </div>
+
+      <div class="flex shrink-0 items-center gap-1.5">
+        <button
+          id="btn-abrir-tutorial"
+          type="button"
+          class="rounded-xl border-2 border-zinc-900 bg-[#FDE047] px-2 py-1 text-[11px] font-black shadow-[2px_2px_0px_#18181B]"
+        >
+          ? Tutorial
+        </button>
+        <a
+          href="/pagos/nuevo"
+          class="rounded-xl border-2 border-zinc-900 bg-[#3B38D0] px-2.5 py-1 text-[11px] font-black text-white shadow-[2px_2px_0px_#18181B]"
+        >
+          + Pagar QR
+        </a>
+      </div>
+    </header>
+
+    <!-- Interruptor -->
+    <section class="mt-3.5 flex items-center justify-between gap-3 rounded-2xl border-2 border-zinc-900 bg-white p-3 shadow-[3px_3px_0px_#18181B]">
+      <div class="min-w-0">
+        <p class="text-xs font-black text-zinc-900">Clasificar pagos y reportes</p>
+        <p id="texto-estado-modo" class="text-[10px] font-semibold leading-snug text-zinc-600">
+          Activo: te pide motivo al pagar y arma tu reporte mensual.
+        </p>
+      </div>
+
+      <label class="relative inline-flex shrink-0 cursor-pointer items-center">
+        <input id="toggle-modo-reportes" type="checkbox" class="peer sr-only" checked />
+        <div class="h-7 w-13 rounded-full border-2 border-zinc-900 bg-zinc-300 transition peer-checked:bg-[#3B38D0] after:absolute after:top-1 after:left-1 after:h-5 after:w-5 after:rounded-full after:border-2 after:border-zinc-900 after:bg-white after:transition-all peer-checked:after:translate-x-6"></div>
+      </label>
+    </section>
+
+    <!-- Sección inteligente -->
+    <div id="seccion-inteligente" class="mt-4 space-y-4">
+      <section id="contenedor-alertas" class="space-y-2"></section>
+
+      <section class="rounded-2xl border-2 border-zinc-900 bg-white p-3.5 shadow-[4px_4px_0px_#18181B]">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <h2 class="text-sm font-black text-zinc-900">Reporte de noviembre</h2>
+            <p class="text-[10px] font-semibold leading-snug text-zinc-500">
+              Toca una categoría para filtrar
+            </p>
+          </div>
+          <div class="shrink-0 text-right">
+            <span class="text-[10px] font-extrabold uppercase text-zinc-500">Total mes</span>
+            <p id="total-gastado-mes" class="text-base font-black text-[#3B38D0]">Bs 0</p>
+          </div>
+        </div>
+
+        <div id="lista-barras-reporte" class="mt-3 space-y-3"></div>
+
+        <div class="mt-3 flex items-center justify-between gap-2 border-t-2 border-dashed border-zinc-300 pt-2.5">
+          <button
+            id="btn-limpiar-filtro"
+            type="button"
+            class="hidden text-[11px] font-extrabold text-[#3B38D0] underline"
+          >
+            Ver todos
+          </button>
+          <button
+            id="btn-nueva-cat-desde-reporte"
+            type="button"
+            class="ml-auto rounded-lg border-2 border-zinc-900 bg-[#F7F2E9] px-2 py-1 text-[11px] font-extrabold hover:bg-[#FDE047]"
+          >
+            + Crear categoría
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Extractos -->
+    <section class="mt-4">
+      <div class="mb-2 flex items-center justify-between gap-2">
+        <h2 id="titulo-extractos" class="min-w-0 truncate text-sm font-black text-zinc-900">
+          Extractos recientes
+        </h2>
+        <span
+          id="contador-extractos"
+          class="shrink-0 rounded-full border border-zinc-900 bg-white px-2 py-0.5 text-[11px] font-bold"
+        >
+          0 mov.
+        </span>
+      </div>
+
+      <div id="lista-extractos" class="space-y-2.5"></div>
+    </section>
+  </div>
+
+  <TutorialModal />
+  <ModalNuevaCategoria />
+
+  <script>
+    import {
+      getModoReportes,
+      setModoReportes,
+      getTutorialVisto,
+      setTutorialVisto,
+      getCategorias,
+      agregarCategoria,
+      getPagos,
+      clasificarPago,
+      generarAlertas,
+    } from "../../lib/pagosStore";
+
+    let filtroCategoriaId: string | null = null;
+
+    const esc = (t: string) =>
+      String(t).replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!
+      );
+
+    const toggleModo = document.getElementById("toggle-modo-reportes") as HTMLInputElement;
+    const textoEstadoModo = document.getElementById("texto-estado-modo")!;
+    const seccionInteligente = document.getElementById("seccion-inteligente")!;
+    const contenedorAlertas = document.getElementById("contenedor-alertas")!;
+    const totalGastadoMes = document.getElementById("total-gastado-mes")!;
+    const listaBarrasReporte = document.getElementById("lista-barras-reporte")!;
+    const listaExtractos = document.getElementById("lista-extractos")!;
+    const contadorExtractos = document.getElementById("contador-extractos")!;
+    const tituloExtractos = document.getElementById("titulo-extractos")!;
+    const btnLimpiarFiltro = document.getElementById("btn-limpiar-filtro")!;
+
+    const modalTutorial = document.getElementById("modal-tutorial")!;
+    function abrirTutorial() {
+      modalTutorial.classList.remove("hidden");
+      modalTutorial.classList.add("flex");
+    }
+    function cerrarTutorial() {
+      setTutorialVisto(true);
+      modalTutorial.classList.add("hidden");
+      modalTutorial.classList.remove("flex");
+    }
+
+    if (!getTutorialVisto()) abrirTutorial();
+
+    document.getElementById("btn-abrir-tutorial")?.addEventListener("click", abrirTutorial);
+    document.getElementById("btn-cerrar-tutorial-x")?.addEventListener("click", cerrarTutorial);
+    document.getElementById("btn-entendido-tutorial")?.addEventListener("click", cerrarTutorial);
+
+    function renderizarTodo() {
+      const modoActivo = getModoReportes();
+      const categorias = getCategorias();
+      const pagos = getPagos();
+
+      toggleModo.checked = modoActivo;
+      seccionInteligente.classList.toggle("hidden", !modoActivo);
+
+      textoEstadoModo.textContent = modoActivo
+        ? "Activo: clasifica gastos y recibe alertas inteligentes."
+        : "Desactivado: modo billetera común (solo extractos simples).";
+
+      if (modoActivo) {
+        const alertas = generarAlertas(pagos, categorias);
+        contenedorAlertas.innerHTML = alertas
+          .map((a) => {
+            const bg =
+              a.tipo === "warning"
+                ? "bg-[#FDE047]"
+                : a.tipo === "success"
+                  ? "bg-[#A7F3D0]"
+                  : "bg-white";
+            return `
+              <div class="rounded-2xl border-2 border-zinc-900 ${bg} p-3 shadow-[3px_3px_0px_#18181B]">
+                <p class="text-[11px] font-black leading-snug text-zinc-900">🤖 ${a.titulo}</p>
+                <p class="mt-0.5 text-[11px] font-semibold leading-snug text-zinc-800">${a.mensaje}</p>
+              </div>
+            `;
+          })
+          .join("");
+
+        const total = pagos.reduce((acc, p) => acc + p.monto, 0);
+        totalGastadoMes.textContent = `Bs ${total.toLocaleString("es-BO", { minimumFractionDigits: 2 })}`;
+
+        const resumen = categorias
+          .map((cat) => {
+            const suma = pagos
+              .filter((p) => p.categoriaId === cat.id)
+              .reduce((acc, p) => acc + p.monto, 0);
+            const pct = total > 0 ? Math.round((suma / total) * 100) : 0;
+            return { ...cat, suma, pct };
+          })
+          .filter((item) => item.suma > 0)
+          .sort((a, b) => b.suma - a.suma);
+
+        const sumaSinTipo = pagos
+          .filter((p) => !p.categoriaId)
+          .reduce((acc, p) => acc + p.monto, 0);
+        if (sumaSinTipo > 0) {
+          resumen.push({
+            id: "SIN_TIPO",
+            nombre: "Sin tipo (pendientes)",
+            icono: "⚠️",
+            esPasivo: false,
+            presupuestoMensual: 0,
+            suma: sumaSinTipo,
+            pct: total > 0 ? Math.round((sumaSinTipo / total) * 100) : 0,
+          });
+        }
+
+        listaBarrasReporte.innerHTML = resumen
+          .map((item) => {
+            const colorBarra =
+              item.id === "SIN_TIPO"
+                ? "bg-[#FDE047]"
+                : item.pct >= 35
+                  ? "bg-rose-500"
+                  : "bg-[#3B38D0]";
+            const seleccionado =
+              filtroCategoriaId === item.id
+                ? "ring-2 ring-[#3B38D0] rounded-xl p-1.5 bg-[#F7F2E9]"
+                : "";
+
+            return `
+              <button
+                type="button"
+                data-cat-filtro="${item.id}"
+                class="btn-filtrar-cat block w-full text-left transition ${seleccionado}"
+              >
+                <div class="flex items-center justify-between gap-2 text-[11px] font-extrabold">
+                  <span class="min-w-0 truncate">${item.icono} ${esc(item.nombre)}</span>
+                  <span class="shrink-0">Bs ${item.suma.toFixed(0)} (${item.pct}%)</span>
+                </div>
+                <div class="mt-1 h-2.5 w-full overflow-hidden rounded-full border-2 border-zinc-900 bg-[#F7F2E9]">
+                  <div class="h-full ${colorBarra}" style="width: ${Math.min(100, item.pct)}%"></div>
+                </div>
+              </button>
+            `;
+          })
+          .join("");
+
+        document.querySelectorAll(".btn-filtrar-cat").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = (btn as HTMLElement).dataset.catFiltro || null;
+            filtroCategoriaId = filtroCategoriaId === id ? null : id;
+            renderizarTodo();
+          });
+        });
+      } else {
+        filtroCategoriaId = null;
+      }
+
+      let pagosFiltrados = pagos;
+      if (modoActivo && filtroCategoriaId) {
+        btnLimpiarFiltro.classList.remove("hidden");
+        if (filtroCategoriaId === "SIN_TIPO") {
+          pagosFiltrados = pagos.filter((p) => !p.categoriaId);
+          tituloExtractos.textContent = "Extractos: Sin tipo";
+        } else {
+          const cat = categorias.find((c) => c.id === filtroCategoriaId);
+          pagosFiltrados = pagos.filter((p) => p.categoriaId === filtroCategoriaId);
+          tituloExtractos.textContent = `Extractos: ${cat?.nombre || ""}`;
+        }
+      } else {
+        btnLimpiarFiltro.classList.add("hidden");
+        tituloExtractos.textContent = "Extractos recientes";
+      }
+
+      contadorExtractos.textContent = `${pagosFiltrados.length} mov.`;
+
+      listaExtractos.innerHTML = pagosFiltrados
+        .map((pago) => {
+          const cat = categorias.find((c) => c.id === pago.categoriaId);
+          const sinTipo = !cat;
+
+          const cabecera = `
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="truncate text-xs font-black text-zinc-900">${esc(pago.comercio)}</p>
+                <p class="truncate text-[10px] font-semibold text-zinc-500">
+                  ${pago.fecha} • ${pago.hora}${pago.detalle ? ` • ${esc(pago.detalle)}` : ""}
+                </p>
+              </div>
+              <p class="shrink-0 text-xs font-black text-zinc-900">- Bs ${pago.monto.toFixed(2)}</p>
+            </div>
+          `;
+
+          if (!modoActivo) {
+            return `
+              <article class="rounded-2xl border-2 border-zinc-900 bg-white p-3 shadow-[3px_3px_0px_#18181B]">
+                ${cabecera}
+              </article>
+            `;
+          }
+
+          const opcionesSelect = categorias
+            .map(
+              (c) =>
+                `<option value="${c.id}" ${pago.categoriaId === c.id ? "selected" : ""}>${c.icono} ${esc(c.nombre)}</option>`
+            )
+            .join("");
+
+          return `
+            <article class="rounded-2xl border-2 border-zinc-900 bg-white p-3 shadow-[3px_3px_0px_#18181B]">
+              ${cabecera}
+
+              <div class="mt-2 flex items-center justify-between gap-2 border-t border-zinc-200 pt-2">
+                ${
+                  sinTipo
+                    ? `<span class="shrink-0 rounded-full border border-zinc-900 bg-[#FDE047] px-2 py-0.5 text-[10px] font-black">⚠️ Sin tipo</span>`
+                    : `<span class="min-w-0 truncate rounded-full border border-zinc-900 bg-[#F7F2E9] px-2 py-0.5 text-[10px] font-extrabold">${cat.icono} ${esc(cat.nombre)}</span>`
+                }
+
+                <select
+                  data-pago-id="${pago.id}"
+                  class="select-reclasificar w-28 shrink-0 rounded-lg border-2 border-zinc-900 bg-[#F7F2E9] px-1.5 py-1 text-[11px] font-bold focus:border-[#3B38D0] focus:outline-none"
+                >
+                  <option value="" ${sinTipo ? "selected" : ""}>Sin tipo</option>
+                  ${opcionesSelect}
+                </select>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+
+      document.querySelectorAll(".select-reclasificar").forEach((sel) => {
+        sel.addEventListener("change", (e) => {
+          const target = e.target as HTMLSelectElement;
+          const pagoId = target.dataset.pagoId!;
+          clasificarPago(pagoId, target.value === "" ? null : target.value);
+          renderizarTodo();
+        });
+      });
+    }
+
+    toggleModo.addEventListener("change", () => {
+      setModoReportes(toggleModo.checked);
+      renderizarTodo();
+    });
+
+    btnLimpiarFiltro.addEventListener("click", () => {
+      filtroCategoriaId = null;
+      renderizarTodo();
+    });
+
+    const modalCat = document.getElementById("modal-nueva-categoria")!;
+    const inputCatNombre = document.getElementById("input-cat-nombre") as HTMLInputElement;
+    const selectCatIcono = document.getElementById("select-cat-icono") as HTMLSelectElement;
+    const inputCatPresupuesto = document.getElementById("input-cat-presupuesto") as HTMLInputElement;
+    const checkCatPasivo = document.getElementById("check-cat-pasivo") as HTMLInputElement;
+    const btnGuardarCat = document.getElementById("btn-guardar-categoria") as HTMLButtonElement;
+    const errorCatNombre = document.getElementById("error-cat-nombre")!;
+
+    document.getElementById("btn-nueva-cat-desde-reporte")?.addEventListener("click", () => {
+      modalCat.classList.remove("hidden");
+      modalCat.classList.add("flex");
+    });
+
+    document.getElementById("btn-cerrar-cat")?.addEventListener("click", () => {
+      modalCat.classList.add("hidden");
+      modalCat.classList.remove("flex");
+    });
+
+    inputCatNombre.addEventListener("input", () => {
+      const nombre = inputCatNombre.value.trim();
+      const duplicado = getCategorias().some((c) => c.nombre.toLowerCase() === nombre.toLowerCase());
+      const valido = nombre.length >= 2 && !duplicado;
+      btnGuardarCat.disabled = !valido;
+      errorCatNombre.classList.toggle("hidden", valido || nombre.length === 0);
+    });
+
+    document.getElementById("form-nueva-categoria")?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (btnGuardarCat.disabled) return;
+      agregarCategoria(
+        inputCatNombre.value,
+        selectCatIcono.value,
+        checkCatPasivo.checked,
+        Number(inputCatPresupuesto.value)
+      );
+      inputCatNombre.value = "";
+      btnGuardarCat.disabled = true;
+      modalCat.classList.add("hidden");
+      modalCat.classList.remove("flex");
+      renderizarTodo();
+    });
+
+    renderizarTodo();
+  </script>
 </AppLayout>

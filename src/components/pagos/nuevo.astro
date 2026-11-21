@@ -1,0 +1,301 @@
+---
+import AppLayout from "../../layouts/AppLayout.astro";
+import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astro";
+---
+
+<AppLayout titulo="Nuevo Pago">
+  <div class="px-4 pt-5 pb-20 text-zinc-900">
+    <header class="mb-4 flex items-center justify-between">
+      <a
+        href="/pagos"
+        class="rounded-xl border-2 border-zinc-900 bg-white px-3 py-1.5 text-xs font-extrabold shadow-[3px_3px_0px_#18181B]"
+      >
+        ← Volver
+      </a>
+      <div class="rounded-full border-2 border-zinc-900 bg-white px-3 py-1 text-xs font-black">
+        Saldo: <span id="header-saldo" class="text-[#3B38D0]">Bs 3.450,00</span>
+      </div>
+    </header>
+
+    <h1 class="text-2xl font-black tracking-tight">Pagar con QR</h1>
+    <p id="subtitulo-modo" class="mt-0.5 text-xs font-semibold text-zinc-600">
+      Modo Reportes activo: puedes elegir un motivo o dejarlo en "Sin tipo".
+    </p>
+
+    <!-- Simulador rápido de escaneo QR -->
+    <section class="mt-3.5 rounded-2xl border-2 border-zinc-900 bg-white p-3 shadow-[4px_4px_0px_#18181B]">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-black uppercase text-zinc-600">📷 Simular lectura QR</span>
+        <span class="rounded-md bg-[#A7F3D0] px-2 py-0.5 text-[10px] font-extrabold text-zinc-900">
+          Demo QR
+        </span>
+      </div>
+      <div class="mt-2 flex flex-wrap gap-1.5">
+        <button
+          type="button"
+          data-qr-comercio="Salteñería El Hornito"
+          data-qr-monto="32"
+          class="btn-qr-demo rounded-lg border-2 border-zinc-900 bg-[#F7F2E9] px-2 py-1 text-[11px] font-bold hover:bg-[#FDE047]"
+        >
+          QR Salteñas (Bs 32)
+        </button>
+        <button
+          type="button"
+          data-qr-comercio="SeLA Oruro (Agua)"
+          data-qr-monto="85"
+          class="btn-qr-demo rounded-lg border-2 border-zinc-900 bg-[#F7F2E9] px-2 py-1 text-[11px] font-bold hover:bg-[#FDE047]"
+        >
+          QR Agua (Bs 85)
+        </button>
+        <button
+          type="button"
+          data-qr-comercio="Tienda Exceso"
+          data-qr-monto="9999"
+          class="btn-qr-demo rounded-lg border-2 border-zinc-900 bg-[#F7F2E9] px-2 py-1 text-[11px] font-bold hover:bg-rose-200"
+        >
+          QR Sin Saldo
+        </button>
+      </div>
+    </section>
+
+    <!-- Formulario de Pago -->
+    <form
+      id="form-pago"
+      class="mt-4 space-y-3.5 rounded-2xl border-2 border-zinc-900 bg-white p-4 shadow-[5px_5px_0px_#18181B]"
+    >
+      <div>
+        <label class="mb-1 block text-xs font-extrabold uppercase text-zinc-700">
+          Destinatario / Comercio *
+        </label>
+        <input
+          id="input-comercio"
+          type="text"
+          placeholder="Ej: Mercado Campero, Farmacia..."
+          class="w-full rounded-xl border-2 border-zinc-900 bg-[#F7F2E9] px-3 py-2 text-sm font-bold focus:border-[#3B38D0] focus:bg-white focus:outline-none"
+        />
+        <p id="error-comercio" class="mt-1 hidden text-xs font-bold text-red-600">
+          Ingresa el nombre del comercio o destinatario.
+        </p>
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs font-extrabold uppercase text-zinc-700">
+          Monto a pagar (Bs) *
+        </label>
+        <input
+          id="input-monto"
+          type="number"
+          step="0.01"
+          min="0.1"
+          placeholder="0.00"
+          class="w-full rounded-xl border-2 border-zinc-900 bg-[#F7F2E9] px-3 py-2.5 text-lg font-black text-[#3B38D0] focus:border-[#3B38D0] focus:bg-white focus:outline-none"
+        />
+        <p id="error-monto" class="mt-1 hidden text-xs font-bold text-red-600">
+          El monto debe ser mayor a Bs 0 y no superar tu saldo disponible.
+        </p>
+      </div>
+
+      <div id="bloque-categoria" class="space-y-1.5 rounded-xl border-2 border-zinc-900 bg-[#F7F2E9] p-3">
+        <div class="flex items-center justify-between">
+          <label for="select-categoria" class="text-xs font-extrabold uppercase text-zinc-800">
+            Motivo del pago (Opcional)
+          </label>
+          <button
+            id="btn-abrir-modal-cat"
+            type="button"
+            class="rounded-lg border-2 border-zinc-900 bg-[#FDE047] px-2 py-0.5 text-[11px] font-black shadow-[2px_2px_0px_#18181B]"
+          >
+            + Nueva categoría
+          </button>
+        </div>
+
+        <select
+          id="select-categoria"
+          class="w-full rounded-xl border-2 border-zinc-900 bg-white px-3 py-2 text-sm font-bold focus:border-[#3B38D0] focus:outline-none"
+        >
+          <option value="">⚪ Sin tipo (clasificar luego si quiero)</option>
+        </select>
+
+        <p id="aviso-caja-hormiga" class="hidden rounded-lg border border-zinc-900 bg-[#A7F3D0] px-2.5 py-1.5 text-[11px] font-bold text-zinc-900">
+          💡 Tienes ahorro en tu Caja Virtual Hormiga para servicios básicos.
+        </p>
+      </div>
+
+      <div>
+        <label class="mb-1 block text-xs font-extrabold uppercase text-zinc-700">
+          Detalle / Nota (Opcional)
+        </label>
+        <input
+          id="input-detalle"
+          type="text"
+          placeholder="Ej: Almuerzo con compañeros, recarga..."
+          class="w-full rounded-xl border-2 border-zinc-900 bg-[#F7F2E9] px-3 py-2 text-sm font-semibold focus:border-[#3B38D0] focus:bg-white focus:outline-none"
+        />
+      </div>
+
+      <button
+        id="btn-confirmar-pago"
+        type="submit"
+        disabled
+        class="w-full rounded-xl border-2 border-zinc-900 bg-[#3B38D0] py-3 text-sm font-black text-white shadow-[4px_4px_0px_#18181B] transition hover:bg-[#312EB5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:opacity-60 disabled:shadow-none"
+      >
+        Confirmar pago
+      </button>
+    </form>
+  </div>
+
+  <ModalNuevaCategoria />
+
+  <script>
+    import {
+      getModoReportes,
+      getSaldo,
+      getCategorias,
+      agregarCategoria,
+      registrarPago,
+    } from "../../lib/pagosStore";
+
+    const modoActivo = getModoReportes();
+    const saldoActual = getSaldo();
+
+    const headerSaldo = document.getElementById("header-saldo")!;
+    const subtituloModo = document.getElementById("subtitulo-modo")!;
+    const bloqueCategoria = document.getElementById("bloque-categoria")!;
+    const selectCategoria = document.getElementById("select-categoria") as HTMLSelectElement;
+    const avisoHormiga = document.getElementById("aviso-caja-hormiga")!;
+
+    const inputComercio = document.getElementById("input-comercio") as HTMLInputElement;
+    const inputMonto = document.getElementById("input-monto") as HTMLInputElement;
+    const inputDetalle = document.getElementById("input-detalle") as HTMLInputElement;
+    const errorComercio = document.getElementById("error-comercio")!;
+    const errorMonto = document.getElementById("error-monto")!;
+    const btnConfirmar = document.getElementById("btn-confirmar-pago") as HTMLButtonElement;
+
+    headerSaldo.textContent = `Bs ${saldoActual.toLocaleString("es-BO", { minimumFractionDigits: 2 })}`;
+
+    if (!modoActivo) {
+      bloqueCategoria.classList.add("hidden");
+      subtituloModo.textContent = "Modo billetera estándar: paga rápido sin categorías.";
+    }
+
+    function cargarCategoriasEnSelect(seleccionarId = "") {
+      const categorias = getCategorias();
+      selectCategoria.innerHTML = `<option value="">⚪ Sin tipo (clasificar luego si quiero)</option>`;
+      categorias.forEach((cat) => {
+        const opt = document.createElement("option");
+        opt.value = cat.id;
+        opt.textContent = `${cat.icono} ${cat.nombre}${cat.esPasivo ? " (Pasivo)" : ""}`;
+        selectCategoria.appendChild(opt);
+      });
+      if (seleccionarId) {
+        selectCategoria.value = seleccionarId;
+      }
+    }
+
+    cargarCategoriasEnSelect();
+
+    selectCategoria.addEventListener("change", () => {
+      if (selectCategoria.value === "servicios") {
+        avisoHormiga.classList.remove("hidden");
+      } else {
+        avisoHormiga.classList.add("hidden");
+      }
+    });
+
+    function validarFormulario() {
+      const comercioValido = inputComercio.value.trim().length >= 2;
+      const montoNum = Number(inputMonto.value);
+      const montoValido = !isNaN(montoNum) && montoNum > 0 && montoNum <= saldoActual;
+
+      if (inputComercio.value.length > 0 && !comercioValido) {
+        errorComercio.classList.remove("hidden");
+      } else {
+        errorComercio.classList.add("hidden");
+      }
+
+      if (inputMonto.value.length > 0 && !montoValido) {
+        errorMonto.classList.remove("hidden");
+        errorMonto.textContent =
+          montoNum > saldoActual
+            ? `Saldo insuficiente (máximo Bs ${saldoActual.toFixed(2)}).`
+            : "Ingresa un monto mayor a Bs 0.";
+      } else {
+        errorMonto.classList.add("hidden");
+      }
+
+      const todoValido = comercioValido && montoValido;
+      btnConfirmar.disabled = !todoValido;
+      btnConfirmar.textContent = todoValido
+        ? `Confirmar pago de Bs ${montoNum.toFixed(2)}`
+        : "Confirmar pago";
+    }
+
+    inputComercio.addEventListener("input", validarFormulario);
+    inputMonto.addEventListener("input", validarFormulario);
+
+    document.querySelectorAll(".btn-qr-demo").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const el = btn as HTMLElement;
+        inputComercio.value = el.dataset.qrComercio || "";
+        inputMonto.value = el.dataset.qrMonto || "";
+        validarFormulario();
+      });
+    });
+
+    document.getElementById("form-pago")!.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (btnConfirmar.disabled) return;
+
+      registrarPago({
+        comercio: inputComercio.value,
+        monto: Number(inputMonto.value),
+        categoriaId: modoActivo && selectCategoria.value !== "" ? selectCategoria.value : null,
+        detalle: inputDetalle.value,
+      });
+
+      window.location.href = "/pagos";
+    });
+
+    const modalCat = document.getElementById("modal-nueva-categoria")!;
+    const inputCatNombre = document.getElementById("input-cat-nombre") as HTMLInputElement;
+    const selectCatIcono = document.getElementById("select-cat-icono") as HTMLSelectElement;
+    const inputCatPresupuesto = document.getElementById("input-cat-presupuesto") as HTMLInputElement;
+    const checkCatPasivo = document.getElementById("check-cat-pasivo") as HTMLInputElement;
+    const btnGuardarCat = document.getElementById("btn-guardar-categoria") as HTMLButtonElement;
+    const errorCatNombre = document.getElementById("error-cat-nombre")!;
+
+    document.getElementById("btn-abrir-modal-cat")?.addEventListener("click", () => {
+      modalCat.classList.remove("hidden");
+      modalCat.classList.add("flex");
+    });
+
+    document.getElementById("btn-cerrar-cat")?.addEventListener("click", () => {
+      modalCat.classList.add("hidden");
+      modalCat.classList.remove("flex");
+    });
+
+    inputCatNombre.addEventListener("input", () => {
+      const nombre = inputCatNombre.value.trim();
+      const duplicado = getCategorias().some((c) => c.nombre.toLowerCase() === nombre.toLowerCase());
+      const valido = nombre.length >= 2 && !duplicado;
+      btnGuardarCat.disabled = !valido;
+      errorCatNombre.classList.toggle("hidden", valido || nombre.length === 0);
+    });
+
+    document.getElementById("form-nueva-categoria")?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (btnGuardarCat.disabled) return;
+      const nueva = agregarCategoria(
+        inputCatNombre.value,
+        selectCatIcono.value,
+        checkCatPasivo.checked,
+        Number(inputCatPresupuesto.value)
+      );
+      cargarCategoriasEnSelect(nueva.id);
+      inputCatNombre.value = "";
+      btnGuardarCat.disabled = true;
+      modalCat.classList.add("hidden");
+      modalCat.classList.remove("flex");
+    });
+  </script>
+</AppLayout>
