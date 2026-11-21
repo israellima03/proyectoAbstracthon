@@ -1,0 +1,44 @@
+---
+import Icono from "../ui/Icono.astro";
+import { MAX_RETIROS_MES } from "../../lib/retiros";
+---
+
+<header class="mb-4">
+  <span class="chip bg-primario-suave text-[10px] tracking-wide text-primario uppercase">
+    <Icono nombre="escudo" class="size-3" trazo={2.5} /> Cuenta en UFV
+  </span>
+  <h1 class="mt-2 text-3xl leading-tight font-extrabold tracking-tight">Tu cuenta en UFVs</h1>
+  <p class="text-sm text-tinta-suave">Protege tu dinero de la inflación y deposita por QR sin ir al banco.</p>
+</header>
+
+<section class="tarjeta p-4">
+  <p class="text-[11px] font-bold tracking-wide text-tinta-suave uppercase">Tu saldo</p>
+  <p class="mt-1 text-3xl font-extrabold text-primario">
+    <span id="saldo-ufv">0,00</span> <span class="text-base">UFV</span>
+  </p>
+  <p class="text-sm text-tinta-suave">≈ <span id="saldo-bs">Bs 0</span></p>
+
+  <div class="mt-4 grid grid-cols-2 gap-2">
+    <button id="ir-comprar" type="button" class="btn-accion py-2.5 text-sm">
+      <Icono nombre="mas" class="size-4" trazo={2.5} /> Comprar
+    </button>
+    <button
+      id="ir-retirar"
+      type="button"
+      class="flex items-center justify-center gap-2 rounded-[0.875rem] border-2 border-tinta bg-superficie py-2.5 text-sm font-bold shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+    >
+      <Icono nombre="menos" class="size-4" trazo={2.5} /> Retirar
+    </button>
+  </div>
+
+  <!-- Indicador de retiros del mes -->
+  <div class="mt-4 flex items-center justify-between rounded-xl border-2 border-tinta bg-fondo px-3 py-2">
+    <p class="text-xs font-semibold">Retiros este mes</p>
+    <div class="flex items-center gap-2">
+      <div id="retiros-puntos" class="flex gap-1" aria-hidden="true">
+        {Array.from({ length: MAX_RETIROS_MES }, () => <span class="size-3 rounded-full border-2 border-tinta bg-superficie" />)}
+      </div>
+      <span id="retiros-texto" class="text-xs font-bold">0/{MAX_RETIROS_MES}</span>
+    </div>
+  </div>
+</section>

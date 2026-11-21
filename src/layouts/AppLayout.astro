@@ -57,6 +57,16 @@ const { titulo } = Astro.props;
         <slot />
       </main>
 
+      <!-- Aviso tipo notificación (se maneja con mostrarAviso() de src/lib/aviso.ts) -->
+      <div
+        id="aviso"
+        role="status"
+        hidden
+        data-base="absolute inset-x-3 top-3 z-[60] cursor-pointer space-y-0.5 rounded-2xl border-2 border-tinta px-4 py-3 text-sm shadow-duro sm:top-12"
+        class="absolute inset-x-3 top-3 z-[60] cursor-pointer space-y-0.5 rounded-2xl border-2 border-tinta bg-tinta px-4 py-3 text-sm text-white shadow-duro sm:top-12"
+      >
+      </div>
+
       <ChatFlotante />
       <BarraInferior />
     </div>

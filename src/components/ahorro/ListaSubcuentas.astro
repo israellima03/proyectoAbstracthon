@@ -1,0 +1,46 @@
+---
+import Icono from "../ui/Icono.astro";
+
+const campo =
+  "w-full rounded-xl border-2 border-tinta bg-fondo px-3 py-2 text-sm font-semibold outline-none focus:bg-superficie focus:ring-2 focus:ring-primario-claro";
+---
+
+<section class="mt-7">
+  <div class="mb-3 flex items-center justify-between">
+    <h2 class="text-xl font-extrabold">Tus metas 🎯</h2>
+    <button
+      id="nueva-btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="nueva-form"
+      class="chip bg-superficie py-1 shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+    >
+      <Icono nombre="mas" class="size-3" trazo={3} /> Nueva meta
+    </button>
+  </div>
+
+  <!-- Formulario nueva meta -->
+  <form id="nueva-form" class="tarjeta mb-4 hidden space-y-3 p-4">
+    <div>
+      <label for="nueva-nombre" class="text-xs font-bold">Nombre</label>
+      <input id="nueva-nombre" required maxlength="30" placeholder="Ej: Laptop nueva" class={campo} />
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label for="nueva-monto" class="text-xs font-bold">Monto (Bs)</label>
+        <input id="nueva-monto" type="number" min="1" step="any" required placeholder="1500" class={campo} />
+      </div>
+      <div>
+        <label for="nueva-tipo" class="text-xs font-bold">Tipo</label>
+        <select id="nueva-tipo" class={campo}>
+          <option value="meta">Meta personal</option>
+          <option value="servicio">Servicio / gasto</option>
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="btn-accion w-full py-2.5 text-sm">Crear meta</button>
+  </form>
+
+  <!-- Las tarjetas se dibujan desde ahorro-app.ts -->
+  <div id="lista-subcuentas" class="space-y-4"></div>
+</section>
