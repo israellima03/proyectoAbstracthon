@@ -1,0 +1,127 @@
+---
+/**
+ * Sugerencia de ahorro que aparece cada vez que entra un ingreso.
+ * "¿Deseas ahorrar el 5%?" → se puede subir/bajar el % y elegir la subcuenta destino.
+ */
+import Icono from "../ui/Icono.astro";
+import { PORCENTAJES_RAPIDOS, PORCENTAJE_SUGERIDO } from "../../data/ahorro";
+import { RECORDATORIO_RETIROS } from "../../lib/retiros";
+
+const botonCuadrado =
+  "grid size-9 place-items-center rounded-xl border-2 border-tinta bg-superficie shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-40";
+---
+
+<!-- Tarjeta-notificación de sugerencia -->
+<section id="sugerencia" class="tarjeta mt-5 overflow-hidden" aria-live="polite">
+  <div class="flex items-center gap-2 border-b-2 border-tinta bg-alerta-suave px-4 py-2 text-xs font-bold">
+    <Icono nombre="campana" class="size-4 origin-top animate-[campana_1s_ease-in-out_2]" />
+    Ingreso recibido: <span id="sug-ingreso" class="text-exito">+Bs 0</span>
+  </div>
+
+  <div class="p-4">
+    <div class="flex items-start gap-3">
+      <img
+        src="/img/mascota/BILLETE.jpg"
+        alt="Mascota billete"
+        width="48"
+        height="48"
+        class="size-12 shrink-0 rounded-full border-2 border-tinta object-cover"
+      />
+      <div>
+        <h2 class="text-lg leading-snug font-extrabold">
+          ¿Deseas ahorrar el <span id="sug-porcentaje-titulo">{PORCENTAJE_SUGERIDO}%</span> en UFV?
+        </h2>
+        <p class="text-xs text-tinta-suave">Ahorros hormiga: separa un poquito de cada ingreso sin sentirlo.</p>
+      </div>
+    </div>
+
+    <!-- Selector de porcentaje -->
+    <div class="mt-4 flex items-center justify-between gap-2">
+      <button id="sug-menos" type="button" aria-label="Bajar porcentaje" class={botonCuadrado}>
+        <Icono nombre="menos" class="size-4" trazo={2.5} />
+      </button>
+      <p class="text-center">
+        <span id="sug-porcentaje" class="text-3xl font-extrabold text-primario">{PORCENTAJE_SUGERIDO}%</span>
+      </p>
+      <button id="sug-mas" type="button" aria-label="Subir porcentaje" class={botonCuadrado}>
+        <Icono nombre="mas" class="size-4" trazo={2.5} />
+      </button>
+    </div>
+    <div class="mt-3 grid grid-cols-4 gap-2">
+      {
+        PORCENTAJES_RAPIDOS.map((p) => (
+          <button
+            type="button"
+            data-pct={p}
+            class="rounded-lg border-2 border-tinta bg-superficie py-1.5 text-sm font-bold transition-colors"
+          >
+            {p}%
+          </button>
+        ))
+      }
+    </div>
+
+    <!-- Equivalencia -->
+    <div class="mt-4 rounded-xl border-2 border-tinta bg-primario-suave p-3">
+      <p class="text-[11px] font-bold tracking-wide text-tinta-suave uppercase">Vas a ahorrar</p>
+      <p class="flex flex-wrap items-baseline gap-x-2 text-xl font-extrabold">
+        <span id="sug-monto-bs">Bs 0</span>
+        <span class="text-tinta-suave">→</span>
+        <span class="text-primario"><span id="sug-monto-ufv">0,00</span> UFV</span>
+      </p>
+    </div>
+
+    <!-- Destino -->
+    <label for="sug-destino" class="mt-4 block text-xs font-bold">¿Para qué subcuenta?</label>
+    <select
+      id="sug-destino"
+      class="mt-1 w-full rounded-xl border-2 border-tinta bg-superficie px-3 py-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-primario-claro"
+    ></select>
+
+    <p class="mt-3 flex gap-1.5 rounded-lg bg-primario-suave p-2 text-[11px] text-primario">
+      <Icono nombre="campana" class="size-3.5 shrink-0" /> {RECORDATORIO_RETIROS}
+    </p>
+
+    <div class="mt-4 flex gap-2">
+      <button id="sug-guardar" type="button" class="btn-accion flex-1 py-3 text-sm">
+        <Icono nombre="ahorro" class="size-4" /> <span id="sug-guardar-texto">Ahorrar</span>
+      </button>
+      <button
+        id="sug-omitir"
+        type="button"
+        class="rounded-[0.875rem] border-2 border-tinta bg-superficie px-4 text-sm font-bold shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+      >
+        Ahora no
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Cuando no hay sugerencia pendiente: registrar un ingreso -->
+<form id="form-ingreso" class="tarjeta mt-5 hidden p-4">
+  <h2 class="font-extrabold">¿Recibiste dinero? 💸</h2>
+  <p class="text-xs text-tinta-suave">Regístralo y te sugerimos cuánto ahorrar.</p>
+  <label for="ingreso-monto" class="sr-only">Monto del ingreso en Bs</label>
+  <div class="mt-3 flex items-center gap-2 rounded-xl border-2 border-tinta bg-fondo px-3">
+    <span class="font-bold text-tinta-suave">Bs</span>
+    <input
+      id="ingreso-monto"
+      type="number"
+      inputmode="decimal"
+      min="1"
+      step="any"
+      required
+      placeholder="3000"
+      class="w-full bg-transparent py-2.5 text-xl font-extrabold outline-none"
+    />
+  </div>
+  <button type="submit" class="btn-accion mt-3 w-full py-3 text-sm">Registrar ingreso</button>
+</form>
+
+<style is:global>
+  @keyframes campana {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(15deg); }
+    75% { transform: rotate(-15deg); }
+  }
+</style>
