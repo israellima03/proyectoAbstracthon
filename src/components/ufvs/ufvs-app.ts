@@ -2,6 +2,7 @@
  * Lógica de la pantalla UFVs: comprar UFV por QR, retirar a Bs (máx. 4 veces al mes) y movimientos.
  */
 import { mostrarAviso } from "../../lib/aviso";
+import { registrarCompraUfv } from "../../lib/racha";
 import { cargarCuenta, guardarCuenta, reiniciarCuenta } from "../../lib/cuenta-ufv";
 import {
   MAX_RETIROS_MES,
@@ -187,7 +188,13 @@ export function iniciarUfvs() {
     guardarCuenta(cuenta);
     compraPendiente = null;
     render();
-    mostrarAviso(RECORDATORIO_RETIROS, { tipo: "exito", titulo: `¡Compraste ${formatoUfv(ufv)} UFV! 🛡️` });
+
+    // La compra cuenta como el ahorro del día de la racha (ver src/lib/racha.ts)
+    const racha = registrarCompraUfv(ufv);
+    const textoRacha = racha
+      ? `${racha.recupera ? "Recuperaste tu racha" : "Racha al día"}: ${racha.dias} días · +${racha.puntos} pts. `
+      : "";
+    mostrarAviso(textoRacha + RECORDATORIO_RETIROS, { tipo: "exito", titulo: `¡Compraste ${formatoUfv(ufv)} UFV! 🛡️` });
   });
 
   // Retirar

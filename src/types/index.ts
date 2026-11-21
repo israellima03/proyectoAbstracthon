@@ -13,6 +13,43 @@ export interface MensajeChat {
   texto: string;
 }
 
+/* ---------- Perfil y racha ---------- */
+
+/** Estado de un día en la semana de la racha. */
+export type EstadoDia = "hecho" | "fallo" | "hoy" | "pendiente";
+
+export interface DiaRacha {
+  letra: string;
+  estado: EstadoDia;
+}
+
+/** Qué pasa al tocar el botón de un reto (por ahora, ir a otra pestaña). */
+export type AccionReto = { tipo: "enlace"; href: string };
+
+export interface Reto {
+  id: string;
+  titulo: string;
+  detalle?: string;
+  puntos: number;
+  icono: NombreIcono;
+  listo?: boolean;
+  accion: AccionReto;
+}
+
+/** Tipos de recompensa de la racha (idea 6). */
+export type CategoriaPremio = "megas" | "descuentos" | "ufv";
+
+/** Premio que se canjea con los puntos de la racha. */
+export interface Premio {
+  id: string;
+  titulo: string;
+  detalle: string;
+  costo: number;
+  icono: NombreIcono;
+  categoria: CategoriaPremio;
+  mensaje: string;
+}
+
 /**
  * Subcuenta de ahorro en UFV.
  * - "servicio": se paga cuando llega al 100% (luz, agua...)
