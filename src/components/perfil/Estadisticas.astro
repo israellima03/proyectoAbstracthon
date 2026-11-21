@@ -1,14 +1,21 @@
 ---
+/**
+ * Cifras rápidas. UFV y metas se leen de lo que guardan las pestañas UFVs y Ahorro;
+ * aquí solo se muestran.
+ */
 import Icono from "../ui/Icono.astro";
-import { racha, resumen } from "../../data/perfil";
-import { bs, miles } from "./formato";
+import { racha } from "../../data/perfil";
+import { cuentaInicial } from "../../lib/cuenta-ufv";
+import { formatoBs, formatoUfv, ufvABs } from "../../lib/ufv";
+import { subcuentasIniciales } from "../../data/ahorro";
+
+const metasCumplidas = subcuentasIniciales.filter((s) => ufvABs(s.ahorradoUfv) >= s.objetivoBs - 0.01).length;
 
 const base =
   "tarjeta flex flex-col gap-2 p-3 transition-transform active:translate-x-[2px] active:translate-y-[2px]";
 const caja = "grid size-9 place-items-center rounded-xl border-2 border-tinta";
 ---
 
-<!-- Cifras rápidas: solo muestran; ahorro y UFV se manejan en sus pestañas -->
 <section class="grid grid-cols-3 gap-3" aria-label="Resumen">
   <a href="#racha" class={base}>
     <span class:list={[caja, "bg-alerta-suave text-accion"]}>
@@ -26,17 +33,42 @@ const caja = "grid size-9 place-items-center rounded-xl border-2 border-tinta";
     <span class:list={[caja, "bg-primario-suave text-primario"]}>
       <Icono nombre="ufvs" class="size-5" />
     </span>
-    <span class="text-xl leading-none font-extrabold">{miles(resumen.ufvAhorradas)}</span>
+    <span data-stat-ufv class="text-xl leading-none font-extrabold text-primario">
+      {formatoUfv(cuentaInicial.saldoUfv)}
+    </span>
     <span class="text-[11px] leading-tight font-semibold text-tinta-suave">
-      UFV ≈ {bs(resumen.ufvAhorradas * resumen.valorUfv)}
+      UFV ≈ <span data-stat-ufv-bs>{formatoBs(Math.round(ufvABs(cuentaInicial.saldoUfv)))}</span>
     </span>
   </a>
 
   <a href="/ahorro" class={base}>
     <span class:list={[caja, "bg-exito-suave text-exito"]}>
-      <Icono nombre="meta" class="size-5" />
+      <Icono nombre="objetivo" class="size-5" />
     </span>
-    <span class="text-xl leading-none font-extrabold">{resumen.metasCumplidas} metas</span>
-    <span class="text-[11px] leading-tight font-semibold text-tinta-suave">Cumplidas</span>
+    <span class="text-xl leading-none font-extrabold">
+      <span data-stat-metas>{metasCumplidas}</span><span class="text-base text-tinta-suave"
+        >/<span data-stat-metas-total>{subcuentasIniciales.length}</span></span
+      >
+    </span>
+    <span class="text-[11px] leading-tight font-semibold text-tinta-suave">Metas cumplidas</span>
   </a>
 </section>
+
+<script>
+  import type { SubcuentaAhorro } from "../../types";
+  import { subcuentasIniciales } from "../../data/ahorro";
+  import { cargarCuenta } from "../../lib/cuenta-ufv";
+  import { formatoBs, formatoUfv, ufvABs } from "../../lib/ufv";
+  import { leer } from "./navegador";
+
+  // Saldo de la cuenta en UFV (pestaña UFVs)
+  const cuenta = cargarCuenta();
+  document.querySelector("[data-stat-ufv]")!.textContent = formatoUfv(cuenta.saldoUfv);
+  document.querySelector("[data-stat-ufv-bs]")!.textContent = formatoBs(Math.round(ufvABs(cuenta.saldoUfv)));
+
+  // Metas cumplidas (pestaña Ahorro): subcuentas que ya llegaron a su objetivo
+  const subcuentas = leer<SubcuentaAhorro[]>("ahorro:subcuentas:v1", subcuentasIniciales);
+  const cumplidas = subcuentas.filter((s) => ufvABs(s.ahorradoUfv) >= s.objetivoBs - 0.01).length;
+  document.querySelector("[data-stat-metas]")!.textContent = String(cumplidas);
+  document.querySelector("[data-stat-metas-total]")!.textContent = String(subcuentas.length);
+</script>

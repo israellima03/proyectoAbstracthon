@@ -39,6 +39,9 @@ export interface Reto {
   accion: AccionReto;
 }
 
+/** Tipos de recompensa de la racha (idea 6). */
+export type CategoriaPremio = "megas" | "descuentos" | "ufv";
+
 /** Premio que se canjea con los puntos de la racha. */
 export interface Premio {
   id: string;
@@ -46,24 +49,8 @@ export interface Premio {
   detalle: string;
   costo: number;
   icono: NombreIcono;
+  categoria: CategoriaPremio;
   mensaje: string;
-}
-
-/** Formulario de gastos fijos del mes (en Bs). */
-export interface GastosFijos {
-  sueldo: number;
-  diaCobro: number;
-  pagaAlquiler: boolean;
-  alquiler: number;
-  luz: number;
-  agua: number;
-  gas: number;
-  internet: number;
-  suscripciones: number;
-  transporte: number;
-  dependientes: number;
-  gastoDependientes: number;
-  otros: number;
 }
 
 export interface AjustesSeguridad {
@@ -71,4 +58,34 @@ export interface AjustesSeguridad {
   biometria: boolean;
   pinEnPagos: boolean;
   alertasSesion: boolean;
+}
+
+/**
+ * Subcuenta de ahorro en UFV.
+ * - "servicio": se paga cuando llega al 100% (luz, agua...)
+ * - "meta": un objetivo personal (viaje, emergencias...)
+ */
+export interface SubcuentaAhorro {
+  id: string;
+  nombre: string;
+  detalle: string;
+  icono: NombreIcono;
+  tipo: "servicio" | "meta";
+  /** Monto a juntar, en Bs */
+  objetivoBs: number;
+  /** Lo ahorrado, guardado en UFV para protegerlo de la inflación */
+  ahorradoUfv: number;
+}
+
+/** Movimiento de la cuenta general en UFV. */
+export interface MovimientoUfv {
+  tipo: "compra" | "retiro";
+  ufv: number;
+  /** Fecha ISO */
+  fecha: string;
+}
+
+export interface CuentaUfv {
+  saldoUfv: number;
+  movimientos: MovimientoUfv[];
 }

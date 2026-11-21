@@ -1,4 +1,4 @@
-import type { AjustesSeguridad, DiaRacha, GastosFijos, Premio, Reto } from "../types";
+import type { AjustesSeguridad, CategoriaPremio, DiaRacha, Premio, Reto } from "../types";
 
 /*
  * Datos de ejemplo de la sección Perfil (incluye la racha).
@@ -14,12 +14,6 @@ export const usuario = {
   titulo: "Ahorrista UFV",
 };
 
-export const resumen = {
-  ufvAhorradas: 1380,
-  /** Bs por 1 UFV (valor de ejemplo; el real lo publica el BCB cada día). */
-  valorUfv: 2.56,
-  metasCumplidas: 4,
-};
 
 /**
  * Racha de ahorro (idea 6): cada día se deposita el monto diario del plan
@@ -66,10 +60,10 @@ export const retos: Reto[] = [
   {
     id: "plan-mes",
     titulo: "Arma tu plan del mes",
-    detalle: "sueldo y gastos fijos",
+    detalle: "en Inicio",
     puntos: 30,
     icono: "sueldo",
-    accion: { tipo: "hoja", hoja: "hoja-sueldo" },
+    accion: { tipo: "enlace", href: "/" },
   },
   {
     id: "transferir-ufv",
@@ -80,49 +74,79 @@ export const retos: Reto[] = [
   },
 ];
 
+export const categoriasPremio: { id: CategoriaPremio | "todas"; etiqueta: string }[] = [
+  { id: "todas", etiqueta: "Todas" },
+  { id: "megas", etiqueta: "Megas" },
+  { id: "descuentos", etiqueta: "Descuentos" },
+  { id: "ufv", etiqueta: "UFV extra" },
+];
+
+/** Recompensas que se canjean con los puntos de la racha (idea 6). */
 export const premios: Premio[] = [
   {
-    id: "megas",
+    id: "megas-1",
     titulo: "1 GB de megas",
-    detalle: "Para tu celular",
+    detalle: "Válido 7 días",
     costo: 500,
     icono: "celular",
-    mensaje: "¡Listo! Te llegará 1 GB de megas por SMS 📱",
+    categoria: "megas",
+    mensaje: "Te llegará 1 GB de megas por SMS 📱",
   },
   {
-    id: "aliado",
+    id: "megas-3",
+    titulo: "3 GB de megas",
+    detalle: "Válido 30 días",
+    costo: 1200,
+    icono: "celular",
+    categoria: "megas",
+    mensaje: "Te llegarán 3 GB de megas por SMS 📱",
+  },
+  {
+    id: "cafe",
     titulo: "20% en Café Aliado",
     detalle: "Negocio aliado",
     costo: 800,
     icono: "etiqueta",
-    mensaje: "¡Cupón del 20% guardado en tu perfil! ☕",
+    categoria: "descuentos",
+    mensaje: "Cupón del 20% guardado en tu perfil ☕",
   },
   {
-    id: "ufv-extra",
+    id: "cine",
+    titulo: "2x1 en el cine",
+    detalle: "Lunes a jueves",
+    costo: 1500,
+    icono: "etiqueta",
+    categoria: "descuentos",
+    mensaje: "Cupón 2x1 de cine guardado 🍿",
+  },
+  {
+    id: "libreria",
+    titulo: "15% en librería",
+    detalle: "Útiles y libros",
+    costo: 600,
+    icono: "etiqueta",
+    categoria: "descuentos",
+    mensaje: "Cupón del 15% en librería guardado 📚",
+  },
+  {
+    id: "ufv-5",
     titulo: "+5 UFV a tu meta",
     detalle: "Plata extra en UFV",
     costo: 1200,
     icono: "moneda",
-    mensaje: "¡Sumamos 5 UFV a tu meta! 💰",
+    categoria: "ufv",
+    mensaje: "Sumamos 5 UFV a tu meta 💰",
+  },
+  {
+    id: "ufv-15",
+    titulo: "+15 UFV a tu meta",
+    detalle: "Plata extra en UFV",
+    costo: 3000,
+    icono: "moneda",
+    categoria: "ufv",
+    mensaje: "Sumamos 15 UFV a tu meta 💰",
   },
 ];
-
-/** Valores de ejemplo para el formulario de gastos fijos (idea 1). */
-export const gastosEjemplo: GastosFijos = {
-  sueldo: 5400,
-  diaCobro: 5,
-  pagaAlquiler: true,
-  alquiler: 1500,
-  luz: 120,
-  agua: 60,
-  gas: 25,
-  internet: 150,
-  suscripciones: 60,
-  transporte: 200,
-  dependientes: 1,
-  gastoDependientes: 600,
-  otros: 0,
-};
 
 export const seguridadInicial: AjustesSeguridad = {
   pin: true,

@@ -14,13 +14,26 @@ export interface EstadoPerfil {
   retosListos: string[];
 }
 
+/** Plan mensual que se arma en Inicio (PlanificarMesModal lo guarda en esta clave). */
+function leerPlanDeInicio(): { ahorroMeta: number } | null {
+  try {
+    const guardado = localStorage.getItem("ufv_plan_mensual");
+    return guardado ? JSON.parse(guardado) : null;
+  } catch {
+    return null;
+  }
+}
+
+const plan = leerPlanDeInicio();
+
 export const estado: EstadoPerfil = {
   puntos: racha.puntos,
   dias: racha.dias,
   ayerCumplido: racha.ayerCumplido,
   hoyCumplido: racha.hoyCumplido,
-  montoDiario: racha.montoDiario,
-  retosListos: retos.filter((r) => r.listo).map((r) => r.id),
+  // Con plan activo, el monto diario de la racha es su ahorro del mes repartido en 30 días
+  montoDiario: plan?.ahorroMeta ? Math.max(1, Math.round(plan.ahorroMeta / 30)) : racha.montoDiario,
+  retosListos: [...retos.filter((r) => r.listo).map((r) => r.id), ...(plan ? ["plan-mes"] : [])],
 };
 
 type Oyente = (e: EstadoPerfil) => void;

@@ -1,37 +1,17 @@
 ---
 import Icono from "../ui/Icono.astro";
-
-const fila =
-  "flex w-full items-center gap-3 rounded-2xl border-2 border-tinta bg-superficie p-3 text-left shadow-duro transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-duro-sm";
-const caja = "grid size-11 shrink-0 place-items-center rounded-xl border-2 border-tinta";
-const flecha =
-  "grid size-8 shrink-0 place-items-center rounded-lg border-2 border-tinta bg-superficie shadow-duro-sm";
 ---
 
+<!-- El plan del mes (sueldo y gastos fijos) vive en Inicio → "Planificar mes" -->
 <section class="flex flex-col gap-3">
-  <div class="flex items-center justify-between">
-    <h2 class="text-xs font-extrabold tracking-wider text-tinta-suave uppercase">Preferencias y finanzas</h2>
-    <span class="chip bg-superficie">Bolivia</span>
-  </div>
+  <h2 class="text-xl font-extrabold">Cuenta y seguridad 🔒</h2>
 
-  <button type="button" data-abrir="hoja-sueldo" class={fila}>
-    <span class:list={[caja, "bg-alerta-suave text-accion"]}>
-      <Icono nombre="sueldo" class="size-5" />
-    </span>
-    <span class="min-w-0 flex-1">
-      <span class="block text-sm leading-tight font-bold">
-        Configuración de <span class="text-primario">sueldo</span> y gastos fijos
-      </span>
-      <span data-resumen-sueldo class="mt-0.5 block truncate text-xs text-tinta-suave">
-        Sin configurar · arma tu plan del mes
-      </span>
-    </span>
-    <span data-chip-sueldo class="chip shrink-0 bg-alerta-suave text-[10px] uppercase">Pendiente</span>
-    <span class={flecha}><Icono nombre="flecha" class="size-4" /></span>
-  </button>
-
-  <button type="button" data-abrir="hoja-seguridad" class={fila}>
-    <span class:list={[caja, "bg-exito-suave text-exito"]}>
+  <button
+    type="button"
+    data-abrir="hoja-seguridad"
+    class="tarjeta flex w-full items-center gap-3 p-3 text-left transition-transform active:translate-x-[2px] active:translate-y-[2px]"
+  >
+    <span class="grid size-11 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-exito-suave text-exito">
       <Icono nombre="huella" class="size-5" />
     </span>
     <span class="min-w-0 flex-1">
@@ -41,6 +21,8 @@ const flecha =
       <span data-resumen-seguridad class="mt-0.5 block truncate text-xs text-tinta-suave">Huella y PIN</span>
     </span>
     <span data-chip-seguridad class="chip shrink-0 bg-alerta-suave text-[10px] uppercase">Revisar</span>
-    <span class={flecha}><Icono nombre="flecha" class="size-4" /></span>
+    <span class="grid size-8 shrink-0 place-items-center rounded-lg border-2 border-tinta bg-superficie shadow-duro-sm">
+      <Icono nombre="flecha" class="size-4" />
+    </span>
   </button>
 </section>

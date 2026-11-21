@@ -1,19 +1,9 @@
-/** Ayudas del navegador para el perfil: avisos, hojas inferiores y guardado local. */
+/** Ayudas del navegador para el perfil: avisos, hojas flotantes y guardado local. */
+import { mostrarAviso, type TipoAviso } from "../../lib/aviso";
 
-/** Muestra un aviso corto arriba de la pantalla. */
-export function avisar(texto: string) {
-  const contenedor = document.getElementById("perfil-aviso");
-  if (!contenedor) return;
-  const el = document.createElement("div");
-  el.className =
-    "rounded-xl border-2 border-tinta bg-superficie px-4 py-2.5 text-center text-sm font-bold shadow-duro transition duration-300 opacity-0 -translate-y-2";
-  el.textContent = texto;
-  contenedor.appendChild(el);
-  setTimeout(() => el.classList.remove("opacity-0", "-translate-y-2"), 20);
-  setTimeout(() => {
-    el.classList.add("opacity-0", "-translate-y-2");
-    setTimeout(() => el.remove(), 300);
-  }, 2800);
+/** Aviso arriba de la pantalla (usa el aviso compartido de AppLayout). */
+export function avisar(mensaje: string, tipo: TipoAviso = "exito", titulo?: string) {
+  mostrarAviso(mensaje, { tipo, titulo });
 }
 
 export function abrirHoja(id: string) {
