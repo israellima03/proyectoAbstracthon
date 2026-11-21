@@ -1,0 +1,310 @@
+---
+/**
+ * Formulario de sueldo y gastos fijos del mes (idea 1).
+ * Con los datos arma un plan: fijos, ahorro sugerido y cuánto gastar por día.
+ */
+import HojaInferior from "./HojaInferior.astro";
+import Interruptor from "./Interruptor.astro";
+import Icono from "../ui/Icono.astro";
+import { gastosEjemplo as g } from "../../data/perfil";
+
+interface Campo {
+  nombre: keyof typeof g;
+  etiqueta: string;
+}
+
+const servicios: Campo[] = [
+  { nombre: "luz", etiqueta: "Luz" },
+  { nombre: "agua", etiqueta: "Agua" },
+  { nombre: "gas", etiqueta: "Gas" },
+  { nombre: "internet", etiqueta: "Internet y celular" },
+];
+
+const otros: Campo[] = [
+  { nombre: "suscripciones", etiqueta: "Suscripciones" },
+  { nombre: "transporte", etiqueta: "Transporte" },
+  { nombre: "otros", etiqueta: "Otros (cuotas, seguros)" },
+];
+
+const entrada =
+  "w-full rounded-xl border-2 border-tinta bg-superficie py-2.5 pr-3 pl-9 font-bold outline-none [appearance:textfield] focus:ring-2 focus:ring-primario-claro disabled:opacity-40 [&::-webkit-inner-spin-button]:appearance-none";
+const subtitulo = "mb-2 text-xs font-extrabold tracking-wider text-tinta-suave uppercase";
+---
+
+<HojaInferior
+  id="hoja-sueldo"
+  titulo="Sueldo y gastos fijos"
+  subtitulo="Arma tu plan para llegar a fin de mes"
+  icono="sueldo"
+  colorIcono="bg-alerta-suave text-accion"
+>
+  <form id="form-sueldo" class="flex flex-col gap-5" novalidate>
+    <fieldset>
+      <legend class={subtitulo}>Ingresos</legend>
+      <div class="grid grid-cols-[1fr_7rem] gap-3">
+        <label class="block">
+          <span class="mb-1 block text-xs font-bold">Sueldo aproximado</span>
+          <span class="relative block">
+            <span class="absolute top-1/2 left-3 -translate-y-1/2 text-xs font-bold text-tinta-suave">Bs</span>
+            <input name="sueldo" type="number" inputmode="numeric" min="0" value={g.sueldo} class={entrada} />
+          </span>
+        </label>
+        <label class="block">
+          <span class="mb-1 block text-xs font-bold">Día de cobro</span>
+          <input
+            name="diaCobro"
+            type="number"
+            inputmode="numeric"
+            min="1"
+            max="31"
+            value={g.diaCobro}
+            class:list={[entrada, "pl-3 text-center"]}
+          />
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="flex flex-col gap-3">
+      <legend class={subtitulo}>Vivienda</legend>
+      <Interruptor nombre="pagaAlquiler" etiqueta="¿Pagas alquiler?" activo={g.pagaAlquiler} />
+      <label class="block">
+        <span class="mb-1 block text-xs font-bold">Alquiler al mes</span>
+        <span class="relative block">
+          <span class="absolute top-1/2 left-3 -translate-y-1/2 text-xs font-bold text-tinta-suave">Bs</span>
+          <input name="alquiler" type="number" inputmode="numeric" min="0" value={g.alquiler} class={entrada} />
+        </span>
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend class={subtitulo}>Servicios básicos</legend>
+      <div class="grid grid-cols-2 gap-3">
+        {
+          servicios.map((c) => (
+            <label class="block">
+              <span class="mb-1 block text-xs font-bold">{c.etiqueta}</span>
+              <span class="relative block">
+                <span class="absolute top-1/2 left-3 -translate-y-1/2 text-xs font-bold text-tinta-suave">Bs</span>
+                <input name={c.nombre} type="number" inputmode="numeric" min="0" value={g[c.nombre] as number} class={entrada} />
+              </span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <fieldset class="flex flex-col gap-3">
+      <legend class={subtitulo}>Personas a tu cargo</legend>
+      <div class="flex items-center gap-3">
+        <span class="min-w-0 flex-1">
+          <span class="block text-sm font-bold">Hijos o dependientes</span>
+          <span class="block text-xs text-tinta-suave">Personas que dependen de ti</span>
+        </span>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            data-paso="-1"
+            aria-label="Quitar uno"
+            class="grid size-9 place-items-center rounded-xl border-2 border-tinta bg-superficie shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          >
+            <Icono nombre="menos" class="size-4" trazo={3} />
+          </button>
+          <input
+            name="dependientes"
+            type="number"
+            min="0"
+            max="15"
+            value={g.dependientes}
+            readonly
+            aria-label="Cantidad de dependientes"
+            class="w-8 bg-transparent text-center text-lg font-extrabold outline-none"
+          />
+          <button
+            type="button"
+            data-paso="1"
+            aria-label="Agregar uno"
+            class="grid size-9 place-items-center rounded-xl border-2 border-tinta bg-primario text-white shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          >
+            <Icono nombre="mas" class="size-4" trazo={3} />
+          </button>
+        </div>
+      </div>
+      <label class="block">
+        <span class="mb-1 block text-xs font-bold">Lo que gastas en ellos al mes</span>
+        <span class="relative block">
+          <span class="absolute top-1/2 left-3 -translate-y-1/2 text-xs font-bold text-tinta-suave">Bs</span>
+          <input
+            name="gastoDependientes"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            value={g.gastoDependientes}
+            class={entrada}
+          />
+        </span>
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend class={subtitulo}>Otros gastos fijos</legend>
+      <div class="grid grid-cols-2 gap-3">
+        {
+          otros.map((c) => (
+            <label class="block last:col-span-2">
+              <span class="mb-1 block text-xs font-bold">{c.etiqueta}</span>
+              <span class="relative block">
+                <span class="absolute top-1/2 left-3 -translate-y-1/2 text-xs font-bold text-tinta-suave">Bs</span>
+                <input name={c.nombre} type="number" inputmode="numeric" min="0" value={g[c.nombre] as number} class={entrada} />
+              </span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+  </form>
+
+  <!-- Plan calculado en vivo + guardar -->
+  <div slot="pie" class="border-t-2 border-tinta bg-superficie p-4">
+    <p class="mb-2 text-xs font-extrabold tracking-wider text-tinta-suave uppercase">Tu plan del mes</p>
+    <div class="flex h-4 overflow-hidden rounded-full border-2 border-tinta bg-linea">
+      <span data-barra="fijos" class="h-full bg-primario transition-[width] duration-300"></span>
+      <span data-barra="ahorro" class="h-full border-tinta bg-exito transition-[width] duration-300"></span>
+      <span data-barra="libre" class="h-full bg-alerta transition-[width] duration-300"></span>
+    </div>
+    <dl class="mt-2 grid grid-cols-3 gap-2 text-xs">
+      <div>
+        <dt class="flex items-center gap-1 font-semibold text-tinta-suave">
+          <span class="size-2.5 rounded-full border border-tinta bg-primario"></span>Fijos
+        </dt>
+        <dd data-plan="fijos" class="font-extrabold">—</dd>
+      </div>
+      <div>
+        <dt class="flex items-center gap-1 font-semibold text-tinta-suave">
+          <span class="size-2.5 rounded-full border border-tinta bg-exito"></span>Ahorro <span data-plan="tasa"></span>
+        </dt>
+        <dd data-plan="ahorro" class="font-extrabold">—</dd>
+      </div>
+      <div>
+        <dt class="flex items-center gap-1 font-semibold text-tinta-suave">
+          <span class="size-2.5 rounded-full border border-tinta bg-alerta"></span>Libre
+        </dt>
+        <dd data-plan="libre" class="font-extrabold">—</dd>
+      </div>
+    </dl>
+    <p data-plan="consejo" class="mt-2 rounded-xl bg-primario-suave px-3 py-2 text-xs leading-snug"></p>
+    <p data-plan="aviso" hidden class="mt-2 rounded-xl bg-peligro-suave px-3 py-2 text-xs leading-snug font-semibold text-peligro">
+      Tus gastos fijos superan tu sueldo. Revisa suscripciones u otros gastos que puedas recortar.
+    </p>
+    <button type="submit" form="form-sueldo" class="btn-accion mt-3 w-full py-3.5">Guardar mi plan</button>
+  </div>
+</HojaInferior>
+
+<script>
+  import type { GastosFijos } from "../../types";
+  import { gastosEjemplo } from "../../data/perfil";
+  import { calcularPlan } from "./plan";
+  import { actualizar, marcarReto } from "./estado";
+  import { bs } from "./formato";
+  import { avisar, cerrarHoja, guardar, leer } from "./navegador";
+
+  const CLAVE = "perfil.sueldo";
+  const form = document.getElementById("form-sueldo") as HTMLFormElement;
+  const campo = (nombre: string) => form.elements.namedItem(nombre) as HTMLInputElement;
+  const plan = (nombre: string) => document.querySelector<HTMLElement>(`[data-plan="${nombre}"]`)!;
+  const barra = (nombre: string) => document.querySelector<HTMLElement>(`[data-barra="${nombre}"]`)!;
+
+  function leerFormulario(): GastosFijos {
+    const n = (k: string) => Math.max(0, Number(campo(k).value) || 0);
+    return {
+      sueldo: n("sueldo"),
+      diaCobro: Math.min(31, Math.max(1, n("diaCobro") || 1)),
+      pagaAlquiler: campo("pagaAlquiler").checked,
+      alquiler: n("alquiler"),
+      luz: n("luz"),
+      agua: n("agua"),
+      gas: n("gas"),
+      internet: n("internet"),
+      suscripciones: n("suscripciones"),
+      transporte: n("transporte"),
+      dependientes: n("dependientes"),
+      gastoDependientes: n("gastoDependientes"),
+      otros: n("otros"),
+    };
+  }
+
+  function rellenar(g: GastosFijos) {
+    for (const [clave, valor] of Object.entries(g)) {
+      const el = campo(clave);
+      if (!el) continue;
+      if (el.type === "checkbox") el.checked = Boolean(valor);
+      else el.value = String(valor);
+    }
+  }
+
+  function pintar() {
+    const g = leerFormulario();
+    const p = calcularPlan(g);
+    campo("alquiler").disabled = !g.pagaAlquiler;
+    campo("gastoDependientes").disabled = g.dependientes === 0;
+
+    const total = Math.max(g.sueldo, p.fijos, 1);
+    barra("fijos").style.width = `${(Math.min(p.fijos, total) / total) * 100}%`;
+    barra("ahorro").style.width = `${(p.ahorro / total) * 100}%`;
+    barra("libre").style.width = `${(p.gastoLibre / total) * 100}%`;
+
+    plan("fijos").textContent = bs(p.fijos);
+    plan("ahorro").textContent = bs(p.ahorro);
+    plan("tasa").textContent = p.tasa ? `${Math.round(p.tasa * 100)}%` : "";
+    plan("libre").textContent = bs(p.gastoLibre);
+    plan("aviso").hidden = p.libre > 0 || g.sueldo === 0;
+    plan("consejo").hidden = p.libre <= 0;
+    plan("consejo").innerHTML =
+      `Puedes gastar <b>${bs(p.porDia)} por día</b>. Tu racha te pedirá <b>${bs(p.ahorroDiario)} diarios</b> ` +
+      `(o comprar 1 UFV) para juntar ${bs(p.ahorro)} al mes.`;
+  }
+
+  function mostrarResumen(g: GastosFijos) {
+    const resumen = document.querySelector("[data-resumen-sueldo]");
+    const chip = document.querySelector<HTMLElement>("[data-chip-sueldo]");
+    if (resumen) resumen.textContent = `${bs(g.sueldo)} · cobras el día ${g.diaCobro}`;
+    if (chip) chip.hidden = true;
+  }
+
+  // Cargar plan guardado (si hay)
+  const guardado = leer<GastosFijos | null>(CLAVE, null);
+  rellenar({ ...gastosEjemplo, ...(guardado ?? {}) });
+  if (guardado) {
+    mostrarResumen(guardado);
+    actualizar({ montoDiario: calcularPlan(guardado).ahorroDiario });
+    marcarReto("plan-mes", false);
+  }
+  pintar();
+
+  form.addEventListener("input", pintar);
+  form.addEventListener("change", pintar);
+
+  document.querySelectorAll<HTMLButtonElement>("[data-paso]").forEach((b) =>
+    b.addEventListener("click", () => {
+      const el = campo("dependientes");
+      el.value = String(Math.min(15, Math.max(0, Number(el.value) + Number(b.dataset.paso))));
+      pintar();
+    }),
+  );
+
+  form.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const g = leerFormulario();
+    if (g.sueldo <= 0) {
+      avisar("Pon tu sueldo aproximado para armar el plan");
+      campo("sueldo").focus();
+      return;
+    }
+    const p = calcularPlan(g);
+    guardar(CLAVE, g);
+    mostrarResumen(g);
+    actualizar({ montoDiario: p.ahorroDiario });
+    const puntos = marcarReto("plan-mes");
+    cerrarHoja("hoja-sueldo");
+    avisar(`Plan guardado ✓ Ahorro sugerido ${bs(p.ahorro)}/mes${puntos ? ` · +${puntos} pts` : ""}`);
+  });
+</script>

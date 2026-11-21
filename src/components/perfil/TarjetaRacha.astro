@@ -1,0 +1,181 @@
+---
+import Icono from "../ui/Icono.astro";
+import { racha } from "../../data/perfil";
+import { nivelRacha, siguienteHito } from "./formato";
+
+const hito = siguienteHito(racha.dias);
+const indiceHoy = racha.semana.findIndex((d) => d.estado === "hoy");
+const enRiesgo = !racha.ayerCumplido;
+---
+
+<!-- Tarjeta principal de la racha -->
+<div class="rounded-2xl border-2 border-tinta bg-primario-suave p-4 shadow-duro">
+  <div class="flex items-start gap-3">
+    <span
+      class="grid size-14 shrink-0 place-items-center rounded-2xl border-2 border-tinta bg-accion text-white shadow-duro-sm"
+    >
+      <Icono nombre="llama" class="size-7" />
+    </span>
+    <div class="min-w-0 flex-1">
+      <p class="text-3xl leading-none font-extrabold">
+        <span data-racha-dias>{racha.dias}</span> días
+      </p>
+      <p data-racha-estado class="mt-1 text-sm font-semibold text-tinta-suave">
+        {enRiesgo ? "Racha en riesgo" : "Racha de ahorro activa"}
+      </p>
+    </div>
+    <span data-racha-nivel class="chip shrink-0 bg-superficie">{nivelRacha(racha.dias)}</span>
+  </div>
+
+  <!-- Semana -->
+  <ol class="mt-4 grid grid-cols-7 gap-1" data-indice-hoy={indiceHoy} aria-label="Días de esta semana">
+    {
+      racha.semana.map((dia, i) => (
+        <li class="flex flex-col items-center gap-1.5">
+          <span class="text-[11px] font-bold text-tinta-suave">{dia.letra}</span>
+          <span
+            data-dia={i}
+            data-estado={dia.estado}
+            class="group grid size-9 place-items-center rounded-full border-2 border-tinta bg-superficie text-[10px] font-extrabold transition-colors data-[estado=fallo]:border-dashed data-[estado=fallo]:bg-alerta data-[estado=hecho]:bg-primario data-[estado=hecho]:text-white data-[estado=hoy]:ring-2 data-[estado=hoy]:ring-primario-claro data-[estado=hoy]:ring-offset-2 data-[estado=hoy]:ring-offset-primario-suave data-[estado=pendiente]:border-tinta-suave/40 data-[estado=pendiente]:bg-transparent"
+          >
+            <Icono nombre="check" class="hidden size-4 group-data-[estado=hecho]:block" trazo={3} />
+            <span class="hidden group-data-[estado=fallo]:block">!</span>
+            <span class="hidden group-data-[estado=hoy]:block">Hoy</span>
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+
+  <!-- Próximo bonus -->
+  <div class="mt-4">
+    <div class="flex items-center justify-between gap-2 text-xs font-bold">
+      <span data-hito-texto>Faltan {hito.faltan} días para tu bonus de {hito.dia} días</span>
+      <span data-hito-puntos class="shrink-0 text-primario">+{hito.puntos} pts</span>
+    </div>
+    <div class="mt-1.5 h-3 overflow-hidden rounded-full border-2 border-tinta bg-superficie">
+      <div data-hito-barra class="h-full bg-primario transition-[width] duration-500" style={`width:${hito.avance * 100}%`}>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recuperar / ahorrar hoy -->
+<div data-tarjeta-ahorrar hidden={racha.hoyCumplido} class="rounded-2xl border-2 border-tinta bg-alerta-suave p-4 shadow-duro">
+  <div class="flex items-start gap-3">
+    <span class="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-alerta">
+      <Icono nombre="reloj" class="size-5" />
+    </span>
+    <div class="min-w-0 flex-1">
+      <p data-ahorrar-titulo class="font-extrabold">
+        {enRiesgo ? "¡Recupera tu racha!" : "Ahorra lo de hoy"}
+      </p>
+      <p class="text-xs leading-snug">
+        <span data-ahorrar-detalle>
+          {enRiesgo ? "Ayer no depositaste. Pon lo de ayer + lo de hoy antes de que termine el día." : "Deposita tu monto diario o compra 1 UFV."}
+        </span>
+        Te quedan <b data-cuenta-atras>--:--</b> h.
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-3 flex items-center justify-center gap-2 text-center text-xs font-semibold">
+    <span data-parte-ayer hidden={!enRiesgo} class="contents">
+      <span class="rounded-xl border-2 border-tinta bg-superficie px-3 py-1.5">
+        Ayer<br /><b class="text-sm">Bs <span data-monto-dia>{racha.montoDiario}</span></b>
+      </span>
+      <Icono nombre="mas" class="size-4" trazo={3} />
+    </span>
+    <span class="rounded-xl border-2 border-tinta bg-superficie px-3 py-1.5">
+      Hoy<br /><b class="text-sm">Bs <span data-monto-dia>{racha.montoDiario}</span></b>
+    </span>
+  </div>
+
+  <button type="button" data-ahorrar class="btn-accion mt-3 w-full py-3">
+    <Icono nombre="llama" class="size-5" />
+    <span data-ahorrar-boton>{enRiesgo ? "Recuperar racha" : "Ahorrar hoy"}</span>
+    · Bs <span data-monto-total>{racha.montoDiario * (enRiesgo ? 2 : 1)}</span>
+  </button>
+</div>
+
+<p class="flex items-start gap-1.5 px-1 text-xs leading-snug text-tinta-suave">
+  <Icono nombre="estrella" class="mt-px size-3.5 shrink-0 fill-alerta text-tinta" trazo={1.75} />
+  <span>
+    Ganas puntos por <b class="text-tinta">constancia, no por monto</b>: +{racha.puntosPorDia} pts por cada día.
+    Basta con tu monto diario o comprar 1 UFV.
+  </span>
+</p>
+
+<script>
+  import { ahorrarHoy, alCambiar } from "./estado";
+  import { nivelRacha, siguienteHito } from "./formato";
+  import { avisar } from "./navegador";
+
+  const todos = (sel: string) => document.querySelectorAll<HTMLElement>(sel);
+  const uno = (sel: string) => document.querySelector<HTMLElement>(sel);
+  const indiceHoy = Number(uno("[data-indice-hoy]")?.dataset.indiceHoy ?? -1);
+
+  alCambiar((e) => {
+    const enRiesgo = !e.ayerCumplido;
+    todos("[data-racha-dias]").forEach((el) => (el.textContent = String(e.dias)));
+    todos("[data-racha-estado]").forEach(
+      (el) => (el.textContent = enRiesgo ? "Racha en riesgo" : "Racha de ahorro activa"),
+    );
+    todos("[data-racha-estado-corto]").forEach(
+      (el) => (el.textContent = enRiesgo ? "Racha en riesgo" : "Racha activa"),
+    );
+    todos("[data-racha-nivel]").forEach((el) => (el.textContent = nivelRacha(e.dias)));
+
+    // Semana: ayer y hoy cambian al ahorrar
+    const ayer = uno(`[data-dia="${indiceHoy - 1}"]`);
+    const hoy = uno(`[data-dia="${indiceHoy}"]`);
+    if (ayer) ayer.dataset.estado = e.ayerCumplido ? "hecho" : "fallo";
+    if (hoy) hoy.dataset.estado = e.hoyCumplido ? "hecho" : "hoy";
+
+    // Bonus
+    const hito = siguienteHito(e.dias);
+    uno("[data-hito-texto]")!.textContent =
+      hito.faltan === 1
+        ? `¡Mañana llegas a tu bonus de ${hito.dia} días!`
+        : `Faltan ${hito.faltan} días para tu bonus de ${hito.dia} días`;
+    uno("[data-hito-puntos]")!.textContent = `+${hito.puntos} pts`;
+    uno("[data-hito-barra]")!.style.width = `${hito.avance * 100}%`;
+
+    // Tarjeta para ahorrar / recuperar
+    uno("[data-tarjeta-ahorrar]")!.hidden = e.hoyCumplido;
+    uno("[data-parte-ayer]")!.hidden = !enRiesgo;
+    uno("[data-ahorrar-titulo]")!.textContent = enRiesgo ? "¡Recupera tu racha!" : "Ahorra lo de hoy";
+    uno("[data-ahorrar-detalle]")!.textContent = enRiesgo
+      ? "Ayer no depositaste. Pon lo de ayer + lo de hoy antes de que termine el día."
+      : "Deposita tu monto diario o compra 1 UFV.";
+    uno("[data-ahorrar-boton]")!.textContent = enRiesgo ? "Recuperar racha" : "Ahorrar hoy";
+    todos("[data-monto-dia]").forEach((el) => (el.textContent = String(e.montoDiario)));
+    uno("[data-monto-total]")!.textContent = String(e.montoDiario * (enRiesgo ? 2 : 1));
+
+    // Mensaje de Cecilio
+    uno('[data-cecilio="riesgo"]')!.hidden = !enRiesgo;
+    uno('[data-cecilio="bien"]')!.hidden = enRiesgo;
+  });
+
+  // Todos los botones "ahorrar" (tarjeta y reto) hacen lo mismo
+  document.addEventListener("click", (ev) => {
+    if (!(ev.target as HTMLElement).closest("[data-ahorrar]")) return;
+    const r = ahorrarHoy();
+    if (!r) return;
+    const extra = r.bonus ? ` ¡Bonus de racha +${r.bonus}!` : "";
+    avisar(
+      `${r.recupera ? "¡Racha recuperada!" : "¡Ahorro de hoy listo!"} Bs ${r.monto} · +${r.puntos} pts 🔥${extra}`,
+    );
+  });
+
+  // Cuenta atrás hasta medianoche
+  function cuentaAtras() {
+    const fin = new Date();
+    fin.setHours(24, 0, 0, 0);
+    const min = Math.max(0, Math.floor((fin.getTime() - Date.now()) / 60000));
+    const texto = `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
+    todos("[data-cuenta-atras]").forEach((el) => (el.textContent = texto));
+  }
+  cuentaAtras();
+  setInterval(cuentaAtras, 30_000);
+</script>

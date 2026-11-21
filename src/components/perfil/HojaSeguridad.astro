@@ -1,0 +1,82 @@
+---
+import HojaInferior from "./HojaInferior.astro";
+import Interruptor from "./Interruptor.astro";
+import Icono from "../ui/Icono.astro";
+import { seguridadInicial as s } from "../../data/perfil";
+---
+
+<HojaInferior
+  id="hoja-seguridad"
+  titulo="Seguridad y PIN biométrico"
+  subtitulo="Protege tu cuenta y tus pagos"
+  icono="escudo"
+  colorIcono="bg-exito-suave text-exito"
+>
+  <div data-nivel-seguridad class="mb-4 flex items-center gap-3 rounded-2xl border-2 border-tinta bg-exito-suave p-3">
+    <span class="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-superficie">
+      <Icono nombre="huella" class="size-5" />
+    </span>
+    <div>
+      <p data-nivel-titulo class="text-sm font-extrabold">Seguridad alta</p>
+      <p data-nivel-detalle class="text-xs leading-snug">Tu cuenta está bien protegida.</p>
+    </div>
+  </div>
+
+  <form id="form-seguridad" class="flex flex-col divide-y-2 divide-linea rounded-2xl border-2 border-tinta bg-superficie px-4 shadow-duro [&>*]:py-3.5">
+    <Interruptor nombre="pin" etiqueta="PIN de 4 dígitos" detalle="Para entrar a la app" activo={s.pin} />
+    <Interruptor nombre="biometria" etiqueta="Huella o rostro" detalle="Desbloqueo biométrico del celular" activo={s.biometria} />
+    <Interruptor nombre="pinEnPagos" etiqueta="Pedir PIN en pagos grandes" detalle="Pagos mayores a Bs 500" activo={s.pinEnPagos} />
+    <Interruptor nombre="alertasSesion" etiqueta="Avisarme de nuevos ingresos" detalle="Si alguien entra desde otro celular" activo={s.alertasSesion} />
+  </form>
+</HojaInferior>
+
+<script>
+  import type { AjustesSeguridad } from "../../types";
+  import { seguridadInicial } from "../../data/perfil";
+  import { avisar, guardar, leer } from "./navegador";
+
+  const CLAVE = "perfil.seguridad";
+  const form = document.getElementById("form-seguridad") as HTMLFormElement;
+  const casilla = (n: string) => form.elements.namedItem(n) as HTMLInputElement;
+  const claves = Object.keys(seguridadInicial) as (keyof AjustesSeguridad)[];
+
+  function leerFormulario(): AjustesSeguridad {
+    return Object.fromEntries(claves.map((k) => [k, casilla(k).checked])) as unknown as AjustesSeguridad;
+  }
+
+  function pintar(a: AjustesSeguridad) {
+    const activos = claves.filter((k) => a[k]).length;
+    const alta = a.pin && a.biometria;
+    const caja = document.querySelector<HTMLElement>("[data-nivel-seguridad]")!;
+    caja.classList.toggle("bg-exito-suave", alta);
+    caja.classList.toggle("bg-alerta-suave", !alta);
+    document.querySelector("[data-nivel-titulo]")!.textContent = alta ? "Seguridad alta" : "Seguridad media";
+    document.querySelector("[data-nivel-detalle]")!.textContent = alta
+      ? "Tu cuenta está bien protegida."
+      : "Activa el PIN y la huella para proteger mejor tu plata.";
+
+    // Fila de preferencias
+    const chip = document.querySelector<HTMLElement>("[data-chip-seguridad]");
+    if (chip) {
+      chip.textContent = alta ? "Seguro" : "Revisar";
+      chip.classList.toggle("bg-exito-suave", alta);
+      chip.classList.toggle("bg-alerta-suave", !alta);
+    }
+    const resumen = document.querySelector("[data-resumen-seguridad]");
+    if (resumen) {
+      resumen.textContent = `${a.biometria ? "Huella activada" : "Huella desactivada"} · ${activos} de ${claves.length} protecciones`;
+    }
+  }
+
+  const inicial = { ...seguridadInicial, ...leer<Partial<AjustesSeguridad>>(CLAVE, {}) };
+  claves.forEach((k) => (casilla(k).checked = inicial[k]));
+  pintar(inicial);
+
+  form.addEventListener("change", (ev) => {
+    const a = leerFormulario();
+    guardar(CLAVE, a);
+    pintar(a);
+    const nombre = (ev.target as HTMLInputElement).name;
+    if (nombre === "biometria") avisar(a.biometria ? "Huella activada 🔒" : "Huella desactivada");
+  });
+</script>

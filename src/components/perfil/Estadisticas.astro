@@ -1,0 +1,42 @@
+---
+import Icono from "../ui/Icono.astro";
+import { racha, resumen } from "../../data/perfil";
+import { bs, miles } from "./formato";
+
+const base =
+  "tarjeta flex flex-col gap-2 p-3 transition-transform active:translate-x-[2px] active:translate-y-[2px]";
+const caja = "grid size-9 place-items-center rounded-xl border-2 border-tinta";
+---
+
+<!-- Cifras rápidas: solo muestran; ahorro y UFV se manejan en sus pestañas -->
+<section class="grid grid-cols-3 gap-3" aria-label="Resumen">
+  <a href="#racha" class={base}>
+    <span class:list={[caja, "bg-alerta-suave text-accion"]}>
+      <Icono nombre="llama" class="size-5" />
+    </span>
+    <span class="text-xl leading-none font-extrabold">
+      <span data-racha-dias>{racha.dias}</span> días
+    </span>
+    <span data-racha-estado-corto class="text-[11px] leading-tight font-semibold text-tinta-suave">
+      {racha.ayerCumplido ? "Racha activa" : "Racha en riesgo"}
+    </span>
+  </a>
+
+  <a href="/ufvs" class={base}>
+    <span class:list={[caja, "bg-primario-suave text-primario"]}>
+      <Icono nombre="ufvs" class="size-5" />
+    </span>
+    <span class="text-xl leading-none font-extrabold">{miles(resumen.ufvAhorradas)}</span>
+    <span class="text-[11px] leading-tight font-semibold text-tinta-suave">
+      UFV ≈ {bs(resumen.ufvAhorradas * resumen.valorUfv)}
+    </span>
+  </a>
+
+  <a href="/ahorro" class={base}>
+    <span class:list={[caja, "bg-exito-suave text-exito"]}>
+      <Icono nombre="meta" class="size-5" />
+    </span>
+    <span class="text-xl leading-none font-extrabold">{resumen.metasCumplidas} metas</span>
+    <span class="text-[11px] leading-tight font-semibold text-tinta-suave">Cumplidas</span>
+  </a>
+</section>

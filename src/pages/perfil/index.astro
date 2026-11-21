@@ -1,10 +1,32 @@
 ---
 import AppLayout from "../../layouts/AppLayout.astro";
-import Letrero from "../../components/ui/Letrero.astro";
-// Importa aquí tus componentes desde src/components/perfil/
+import EncabezadoPerfil from "../../components/perfil/EncabezadoPerfil.astro";
+import Estadisticas from "../../components/perfil/Estadisticas.astro";
+import MensajeCecilio from "../../components/perfil/MensajeCecilio.astro";
+import SeccionRacha from "../../components/perfil/SeccionRacha.astro";
+import Preferencias from "../../components/perfil/Preferencias.astro";
+import HojaSueldo from "../../components/perfil/HojaSueldo.astro";
+import HojaSeguridad from "../../components/perfil/HojaSeguridad.astro";
 ---
 
 <AppLayout titulo="Perfil">
-  <!-- TODO (perfil): borrar el Letrero y poner el contenido de la sección -->
-  <Letrero titulo="Perfil" icono="perfil" descripcion="Tu cuenta y preferencias" carpeta="perfil" />
+  <div class="flex flex-col gap-5">
+    <EncabezadoPerfil />
+    <Estadisticas />
+    <MensajeCecilio />
+    <SeccionRacha />
+    <Preferencias />
+  </div>
+
+  <!-- Paneles que suben desde abajo -->
+  <HojaSueldo />
+  <HojaSeguridad />
+
+  <!-- Avisos cortos (toasts) -->
+  <div
+    id="perfil-aviso"
+    aria-live="polite"
+    class="pointer-events-none absolute inset-x-4 top-4 z-[70] flex flex-col items-center gap-2 sm:top-12"
+  >
+  </div>
 </AppLayout>

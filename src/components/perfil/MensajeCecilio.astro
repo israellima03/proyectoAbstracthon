@@ -1,0 +1,52 @@
+---
+import Icono from "../ui/Icono.astro";
+import { racha, usuario } from "../../data/perfil";
+---
+
+<!-- Cecilio, la mascota, comenta cómo va la racha -->
+<section class="tarjeta flex gap-3 p-3">
+  <div class="flex shrink-0 flex-col items-center gap-1.5">
+    <div class="size-16 overflow-hidden rounded-2xl border-2 border-tinta bg-primario">
+      <img
+        src="/img/mascota/BILLETE.jpg"
+        alt="Cecilio, la mascota"
+        width="64"
+        height="64"
+        class="size-full scale-[1.4] object-cover"
+      />
+    </div>
+    <span class="chip bg-primario-suave text-[10px] text-primario">Cecilio</span>
+  </div>
+
+  <div class="flex min-w-0 flex-1 flex-col">
+    <div data-cecilio="riesgo" hidden={racha.ayerCumplido}>
+      <p class="text-sm font-extrabold text-accion uppercase">¡Ojo, {usuario.nombreCorto}! ⏰</p>
+      <p class="mt-0.5 text-sm leading-snug">
+        Ayer no ahorraste. Recupera tu racha de <b><span data-racha-dias>{racha.dias}</span> días</b>{" "}
+        antes de medianoche poniendo lo de ayer más lo de hoy.
+      </p>
+    </div>
+    <div data-cecilio="bien" hidden={!racha.ayerCumplido}>
+      <p class="text-sm font-extrabold text-primario uppercase">¡Vas genial, {usuario.nombreCorto}! ⭐</p>
+      <p class="mt-0.5 text-sm leading-snug">
+        Llevas <b><span data-racha-dias>{racha.dias}</span> días</b> seguidos ahorrando. Tu ahorro en
+        <b class="text-primario">UFV</b> te protege de la inflación 💪
+      </p>
+    </div>
+
+    <button
+      type="button"
+      data-hablar-cecilio
+      class="mt-2 inline-flex items-center gap-1 self-start text-xs font-bold text-primario underline decoration-2 underline-offset-4"
+    >
+      Hablar con Cecilio <Icono nombre="flecha" class="size-3.5" />
+    </button>
+  </div>
+</section>
+
+<script>
+  // Abre el chat flotante del layout
+  document
+    .querySelector("[data-hablar-cecilio]")
+    ?.addEventListener("click", () => document.getElementById("chat-boton")?.click());
+</script>
