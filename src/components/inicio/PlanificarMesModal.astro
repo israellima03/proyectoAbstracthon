@@ -1,18 +1,19 @@
 <div
   id="modal-planificar-mes"
-  class="fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-black/55 p-4 pt-6"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-2 sm:p-4"
 >
-  <div class="w-full max-w-md rounded-2xl border-2 border-[#1E1B4B] bg-[#FAF7F2] p-5 shadow-[0_6px_0_#1E1B4B]">
-    <!-- Cabecera -->
-    <div class="flex items-start justify-between border-b border-[#1E1B4B]/15 pb-3">
+  <!-- Contenedor con tamaño y proporción de pantalla celular -->
+  <div class="flex h-full max-h-[844px] w-full max-w-[420px] flex-col overflow-hidden rounded-[2.25rem] border-2 border-[#1E1B4B] bg-[#FAF7F2] shadow-[0_8px_0_#1E1B4B]">
+    <!-- Cabecera fija arriba -->
+    <div class="flex shrink-0 items-start justify-between border-b-2 border-[#1E1B4B]/15 bg-[#F4ECE1] px-5 py-4">
       <div>
-        <span class="rounded-full border border-[#1E1B4B] bg-[#F4ECE1] px-2.5 py-0.5 text-[11px] font-bold text-[#1E1B4B]">
+        <span class="rounded-full border border-[#1E1B4B] bg-white px-2.5 py-0.5 text-[11px] font-bold text-[#1E1B4B]">
           Inicio de mes
         </span>
-        <h2 class="mt-1.5 text-xl font-extrabold tracking-tight text-[#1E1B4B]">
+        <h2 class="mt-1.5 text-lg font-extrabold tracking-tight text-[#1E1B4B]">
           Arma tu plan mensual
         </h2>
-        <p class="text-xs text-[#1E1B4B]/75">
+        <p class="text-[11px] text-[#1E1B4B]/75">
           Cuéntanos tus ingresos y gastos fijos para calcular cuánto puedes ahorrar sin apretar tu mes.
         </p>
       </div>
@@ -20,15 +21,16 @@
         id="btn-cerrar-plan"
         type="button"
         aria-label="Cerrar planificador"
-        class="rounded-lg border border-[#1E1B4B] bg-white px-2.5 py-1 text-xs font-bold text-[#1E1B4B]"
+        class="ml-2 shrink-0 rounded-lg border-2 border-[#1E1B4B] bg-white px-2.5 py-1 text-xs font-extrabold text-[#1E1B4B] active:translate-y-0.5"
       >
         ✕
       </button>
     </div>
 
-    <form id="form-plan-mensual" class="mt-4 space-y-4">
+    <!-- Cuerpo con scroll interno estilo pantalla móvil -->
+    <form id="form-plan-mensual" class="flex-1 space-y-3.5 overflow-y-auto px-5 py-4">
       <!-- Sueldo mensual -->
-      <div class="rounded-2xl border-2 border-[#1E1B4B] bg-white p-4 shadow-[0_3px_0_#1E1B4B]">
+      <div class="rounded-2xl border-2 border-[#1E1B4B] bg-white p-3.5 shadow-[0_3px_0_#1E1B4B]">
         <label for="plan-sueldo" class="block text-xs font-extrabold text-[#1E1B4B]">
           Sueldo mensual aproximado (Bs)
         </label>
@@ -38,14 +40,14 @@
           min="1"
           step="1"
           value="6200"
-          class="mt-2 w-full rounded-xl border-2 border-[#1E1B4B] bg-[#FAF7F2] px-3 py-2 font-mono text-base font-bold text-[#1E1B4B] outline-none focus:border-[#3B38C4]"
+          class="mt-1.5 w-full rounded-xl border-2 border-[#1E1B4B] bg-[#FAF7F2] px-3 py-2 font-mono text-base font-bold text-[#1E1B4B] outline-none focus:border-[#3B38C4]"
         />
       </div>
 
       <!-- Alquiler y servicios -->
-      <div class="rounded-2xl border-2 border-[#1E1B4B] bg-white p-4 shadow-[0_3px_0_#1E1B4B]">
+      <div class="rounded-2xl border-2 border-[#1E1B4B] bg-white p-3.5 shadow-[0_3px_0_#1E1B4B]">
         <div class="flex items-center justify-between">
-          <span class="text-sm font-extrabold text-[#1E1B4B]">🏠 ¿Pagas alquiler?</span>
+          <span class="text-xs font-extrabold text-[#1E1B4B]">🏠 ¿Pagas alquiler?</span>
           <button
             id="btn-toggle-alquiler"
             type="button"
@@ -56,8 +58,8 @@
           </button>
         </div>
 
-        <div id="bloque-alquiler" class="mt-3">
-          <label for="plan-alquiler" class="block text-xs font-bold text-[#1E1B4B]/85">
+        <div id="bloque-alquiler" class="mt-2.5">
+          <label for="plan-alquiler" class="block text-[11px] font-bold text-[#1E1B4B]/85">
             Monto de alquiler mensual (Bs)
           </label>
           <input
@@ -70,44 +72,44 @@
           />
         </div>
 
-        <div class="mt-3 grid grid-cols-3 gap-2">
+        <div class="mt-2.5 grid grid-cols-3 gap-2">
           <div>
-            <label for="plan-luz" class="block text-xs font-bold text-[#1E1B4B]">Luz</label>
+            <label for="plan-luz" class="block text-[11px] font-bold text-[#1E1B4B]">Luz</label>
             <input
               id="plan-luz"
               type="number"
               min="0"
               step="1"
               value="190"
-              class="mt-1 w-full rounded-xl border-2 border-[#1E1B4B] bg-[#FAF7F2] px-2.5 py-1.5 font-mono text-sm font-bold text-[#1E1B4B] outline-none focus:border-[#3B38C4]"
+              class="mt-1 w-full rounded-xl border-2 border-[#1E1B4B] bg-[#FAF7F2] px-2 py-1.5 font-mono text-sm font-bold text-[#1E1B4B] outline-none focus:border-[#3B38C4]"
             />
           </div>
           <div>
-            <label for="plan-agua" class="block text-xs font-bold text-[#1E1B4B]">Agua</label>
+            <label for="plan-agua" class="block text-[11px] font-bold text-[#1E1B4B]">Agua</label>
             <input
               id="plan-agua"
               type="number"
               min="0"
               step="1"
               value="85"
-              class="mt-1 w-full rounded-xl border-2 border-[#1E1B4B] bg-[#FAF7F2] px-2.5 py-1.5 font-mono text-sm font-bold text-[#1E1B4B] outline-none focus:border-[#3B38C4]"
+              class="mt-1 w-full rounded-xl border-2 border-[#1E1B4B] bg-[#FAF7F2] px-2 py-1.5 font-mono text-sm font-bold text-[#1E1B4B] outline-none focus:border-[#3B38C4]"
             />
           </div>
           <div>
-            <label for="plan-gas" class="block text-xs font-bold text-[#1E1B4B]">Gas</label>
+            <label for="plan-gas" class="block text-[11px] font-bold text-[#1E1B4B]">Gas</label>
             <input
               id="plan-gas"
               type="number"
               min="0"
               step="1"
               value="45"
-              class="mt-1 w-full rounded-xl border-2 border-[#1E1B4B] bg-[#FAF7F2] px-2.5 py-1.5 font-mono text-sm font-bold text-[#1E1B4B] outline-none focus:border-[#3B38C4]"
+              class="mt-1 w-full rounded-xl border-2 border-[#1E1B4B] bg-[#FAF7F2] px-2 py-1.5 font-mono text-sm font-bold text-[#1E1B4B] outline-none focus:border-[#3B38C4]"
             />
           </div>
         </div>
 
-        <div class="mt-3">
-          <label for="plan-suscripciones" class="block text-xs font-bold text-[#1E1B4B]">
+        <div class="mt-2.5">
+          <label for="plan-suscripciones" class="block text-[11px] font-bold text-[#1E1B4B]">
             Suscripciones (streaming, internet, gym)
           </label>
           <input
@@ -122,7 +124,7 @@
       </div>
 
       <!-- Hijos o dependientes -->
-      <div class="rounded-2xl border-2 border-[#1E1B4B] bg-white p-4 shadow-[0_3px_0_#1E1B4B]">
+      <div class="rounded-2xl border-2 border-[#1E1B4B] bg-white p-3.5 shadow-[0_3px_0_#1E1B4B]">
         <div class="flex items-center justify-between gap-2">
           <span class="text-xs font-extrabold text-[#1E1B4B]">👨‍👩‍👧 Hijos o dependientes</span>
           <div class="flex gap-1.5" id="grupo-dependientes">
@@ -150,8 +152,8 @@
           </div>
         </div>
 
-        <div class="mt-3">
-          <label for="plan-dependientes-monto" class="block text-xs font-bold text-[#1E1B4B]/85">
+        <div class="mt-2.5">
+          <label for="plan-dependientes-monto" class="block text-[11px] font-bold text-[#1E1B4B]/85">
             Gasto mensual estimado en dependientes (Bs)
           </label>
           <input
@@ -172,33 +174,33 @@
       ></p>
 
       <!-- Tu plan sugerido -->
-      <div class="rounded-2xl border-2 border-[#1E1B4B] bg-[#F4ECE1] p-4 shadow-[0_3px_0_#1E1B4B]">
+      <div class="rounded-2xl border-2 border-[#1E1B4B] bg-[#F4ECE1] p-3.5 shadow-[0_3px_0_#1E1B4B]">
         <div class="flex items-center justify-between">
-          <h3 class="text-sm font-extrabold text-[#1E1B4B]">Tu plan sugerido</h3>
+          <h3 class="text-xs font-extrabold text-[#1E1B4B]">Tu plan sugerido</h3>
           <span
             id="plan-estado-badge"
-            class="rounded-full border border-emerald-800 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900"
+            class="rounded-full border border-emerald-800 bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-900"
           >
             Meta viable
           </span>
         </div>
 
-        <div class="mt-3 grid grid-cols-2 gap-2.5">
-          <div class="rounded-xl border-2 border-[#1E1B4B] bg-white p-3">
+        <div class="mt-2.5 grid grid-cols-2 gap-2">
+          <div class="rounded-xl border-2 border-[#1E1B4B] bg-white p-2.5">
             <p class="text-[11px] font-semibold text-[#1E1B4B]/75">Gastos fijos</p>
-            <p id="plan-gastos-fijos" class="mt-0.5 font-mono text-lg font-extrabold text-[#1E1B4B]">
+            <p id="plan-gastos-fijos" class="mt-0.5 font-mono text-base font-extrabold text-[#1E1B4B]">
               Bs 2.960
             </p>
           </div>
-          <div class="rounded-xl border-2 border-[#1E1B4B] bg-white p-3">
+          <div class="rounded-xl border-2 border-[#1E1B4B] bg-white p-2.5">
             <p class="text-[11px] font-semibold text-[#1E1B4B]/75">Ahorro meta</p>
-            <p id="plan-ahorro-meta" class="mt-0.5 font-mono text-lg font-extrabold text-[#3B38C4]">
+            <p id="plan-ahorro-meta" class="mt-0.5 font-mono text-base font-extrabold text-[#3B38C4]">
               Bs 620
             </p>
           </div>
         </div>
 
-        <p id="plan-resumen-texto" class="mt-3 text-xs font-medium text-[#1E1B4B]">
+        <p id="plan-resumen-texto" class="mt-2.5 text-xs font-medium text-[#1E1B4B]">
           Te quedan <strong id="plan-libres-texto">Bs 2.620</strong> libres para gastos variables y llegar cómodo a fin de mes.
         </p>
       </div>
@@ -255,7 +257,6 @@
     const suscrip = leerNumero(inputSuscrip);
     const depMonto = dependientes > 0 ? leerNumero(inputDepMonto) : 0;
 
-    // Validaciones
     const campos = [
       { label: "Sueldo", val: sueldo },
       { label: "Alquiler", val: alquiler },
@@ -283,7 +284,7 @@
       if (badgeEl) {
         badgeEl.textContent = "Ajustar gastos";
         badgeEl.className =
-          "rounded-full border border-red-800 bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-900";
+          "rounded-full border border-red-800 bg-red-100 px-2.5 py-0.5 text-[11px] font-bold text-red-900";
       }
       if (gastosFijosEl) gastosFijosEl.textContent = fmtBs(gastosFijos);
       if (ahorroMetaEl) ahorroMetaEl.textContent = fmtBs(0);
@@ -295,7 +296,6 @@
 
     ocultarError();
 
-    // Sugerencia de ahorro: 10% del sueldo (o lo que quede si el margen es ajustado)
     const disponibleTrasFijos = sueldo - gastosFijos;
     const ahorroMeta = Math.min(Math.round(sueldo * 0.1), Math.floor(disponibleTrasFijos * 0.5));
     const libresVariables = disponibleTrasFijos - ahorroMeta;
@@ -307,11 +307,11 @@
       if (libresVariables >= sueldo * 0.2) {
         badgeEl.textContent = "Meta viable";
         badgeEl.className =
-          "rounded-full border border-emerald-800 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900";
+          "rounded-full border border-emerald-800 bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-900";
       } else {
         badgeEl.textContent = "Ajustado";
         badgeEl.className =
-          "rounded-full border border-amber-800 bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900";
+          "rounded-full border border-amber-800 bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-900";
       }
     }
 
@@ -334,7 +334,6 @@
     errorEl.classList.add("hidden");
   }
 
-  // Toggle alquiler Sí / No
   btnAlquiler?.addEventListener("click", () => {
     const activo = btnAlquiler.dataset.activo === "true";
     btnAlquiler.dataset.activo = String(!activo);
@@ -351,7 +350,6 @@
     validarYCalcular();
   });
 
-  // Selector de dependientes (0, 1, 2+)
   document.querySelectorAll<HTMLButtonElement>(".btn-dep").forEach((btn) => {
     btn.addEventListener("click", () => {
       dependientes = Number(btn.dataset.dep || "0");
@@ -370,20 +368,17 @@
     });
   });
 
-  // Recalcular en tiempo real al escribir
   [inputSueldo, inputAlquiler, inputLuz, inputAgua, inputGas, inputSuscrip, inputDepMonto].forEach(
     (el) => {
       el?.addEventListener("input", validarYCalcular);
     }
   );
 
-  // Cerrar modal
   btnCerrarPlan?.addEventListener("click", () => {
     modalPlan?.classList.add("hidden");
     modalPlan?.classList.remove("flex");
   });
 
-  // Guardar plan al enviar
   formPlan?.addEventListener("submit", (e) => {
     e.preventDefault();
     const resultado = validarYCalcular();
