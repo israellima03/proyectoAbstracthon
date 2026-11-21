@@ -1,0 +1,50 @@
+---
+import Icono from "../ui/Icono.astro";
+import { navegacion } from "../../data/navegacion";
+
+const rutaActual = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+function estaActivo(href: string): boolean {
+  if (href === "/") return rutaActual === "/";
+  return rutaActual === href || rutaActual.startsWith(`${href}/`);
+}
+---
+
+<nav
+  aria-label="Navegación principal"
+  class="absolute inset-x-0 bottom-0 z-40 border-t-2 border-tinta bg-superficie pb-[env(safe-area-inset-bottom)] sm:pb-3"
+>
+  <ul class="grid grid-cols-5">
+    {
+      navegacion.map((item) => {
+        const activo = estaActivo(item.href);
+        return (
+          <li>
+            <a
+              href={item.href}
+              aria-current={activo ? "page" : undefined}
+              class:list={[
+                "flex flex-col items-center gap-1 py-2.5 text-[11px] transition-colors",
+                activo
+                  ? "font-bold text-primario"
+                  : "font-medium text-tinta-suave hover:text-tinta",
+              ]}
+            >
+              <span
+                class:list={[
+                  "grid size-9 place-items-center rounded-xl transition-all",
+                  activo && "border-2 border-tinta bg-primario text-white shadow-duro-sm",
+                ]}
+              >
+                <Icono nombre={item.icono} class="size-5" trazo={activo ? 2.25 : 2} />
+              </span>
+              <span class:list={[activo && "underline decoration-2 underline-offset-4"]}>
+                {item.etiqueta}
+              </span>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</nav>

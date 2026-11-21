@@ -1,11 +1,10 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import AppLayout from "../layouts/AppLayout.astro";
+import Letrero from "../components/ui/Letrero.astro";
+// Importa aquí tus componentes desde src/components/inicio/
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<AppLayout titulo="Inicio">
+  <!-- TODO (inicio): borrar el Letrero y poner el contenido de la sección -->
+  <Letrero titulo="Inicio" icono="inicio" descripcion="Resumen de tu mes" carpeta="inicio" />
+</AppLayout>

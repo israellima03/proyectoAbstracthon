@@ -1,1 +1,95 @@
 @import "tailwindcss";
+
+/* =========================================================
+   Tokens de diseño (usar SIEMPRE estos, no colores sueltos)
+   Ej: bg-fondo, text-tinta, border-tinta, bg-primario,
+       bg-alerta-suave, text-peligro, shadow-duro ...
+   ========================================================= */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Base */
+  --color-fondo: #f4ece1;        /* crema del fondo de la app */
+  --color-superficie: #ffffff;   /* tarjetas */
+  --color-tinta: #1d1b2c;        /* textos y bordes */
+  --color-tinta-suave: #5c5a6b;  /* textos secundarios */
+  --color-linea: #d9d3ca;        /* separadores suaves */
+
+  /* Primario (índigo) */
+  --color-primario: #3b38c4;
+  --color-primario-claro: #6d6cf0;
+  --color-primario-suave: #e7e6fb;
+
+  /* Estados */
+  --color-alerta: #f2ac1f;       /* casi al límite */
+  --color-alerta-suave: #fde9a8;
+  --color-peligro: #e0364f;      /* excedido */
+  --color-peligro-suave: #fde1e4;
+  --color-exito: #2f9e6b;
+  --color-exito-suave: #d8f3e5;
+
+  /* Botón de acción principal (terracota) */
+  --color-accion: #c85a43;
+  --color-accion-oscuro: #a9462f;
+
+  /* Sombras "duras" estilo del diseño */
+  --shadow-duro: 3px 3px 0 0 #1d1b2c;
+  --shadow-duro-sm: 2px 2px 0 0 #1d1b2c;
+  --shadow-duro-lg: 4px 5px 0 0 #1d1b2c;
+}
+
+/* Componentes reutilizables */
+@utility tarjeta {
+  background-color: var(--color-superficie);
+  border: 2px solid var(--color-tinta);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-duro);
+}
+
+@utility btn-accion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--color-accion);
+  color: #fff;
+  font-weight: 700;
+  border: 2px solid var(--color-tinta);
+  border-radius: 0.875rem;
+  box-shadow: var(--shadow-duro-lg);
+  transition: transform 0.1s, box-shadow 0.1s;
+  &:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 2px 0 0 var(--color-tinta);
+  }
+}
+
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.625rem;
+  border: 1.5px solid var(--color-tinta);
+  border-radius: 9999px;
+}
+
+/* Fondo de la página detrás del marco de celular (solo en computadora) */
+@utility fondo-escritorio {
+  @media (width >= 40rem) {
+    background-color: #1d1b2c;
+    background-image: radial-gradient(#45425c 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+}
+
+@layer base {
+  html,
+  body {
+    background-color: var(--color-fondo);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+  }
+}

@@ -1,0 +1,152 @@
+---
+import Icono from "../ui/Icono.astro";
+import { preguntasRapidas } from "../../lib/chatbot";
+---
+
+<!-- Capa sobre la pantalla del celular (el padre del layout es `relative`) -->
+<div class="pointer-events-none absolute inset-0 z-50">
+  <!-- Botón flotante -->
+  <button
+    id="chat-boton"
+    type="button"
+    aria-label="Abrir chat con la mascota"
+    aria-expanded="false"
+    aria-controls="chat-panel"
+    class="pointer-events-auto absolute right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] sm:bottom-[6.25rem] grid size-14 place-items-center rounded-full border-2 border-tinta bg-primario text-white shadow-duro transition-transform hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+  >
+    <Icono nombre="chat" class="size-6" />
+    <span
+      class="absolute -top-1 -right-1 size-4 rounded-full border-2 border-tinta bg-alerta"
+      aria-hidden="true"></span>
+  </button>
+
+  <!-- Panel del chat -->
+  <section
+    id="chat-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="chat-titulo"
+    hidden
+    class="pointer-events-auto absolute inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] sm:bottom-[6.25rem] flex max-h-[calc(100%-7.5rem)] flex-col overflow-hidden rounded-2xl border-2 border-tinta bg-fondo shadow-duro-lg"
+  >
+    <!-- Cabecera -->
+    <header class="flex items-center gap-3 border-b-2 border-tinta bg-superficie px-4 py-3">
+      <!-- Marcador de posición de la MASCOTA (reemplazar por su imagen en /public/img/mascota) -->
+      <div
+        class="grid size-10 shrink-0 place-items-center rounded-full border-2 border-dashed border-tinta bg-primario-suave text-[9px] font-bold text-primario"
+      >
+        Mascota
+      </div>
+      <div class="flex-1">
+        <h2 id="chat-titulo" class="text-base leading-tight font-extrabold">Tu mascota</h2>
+        <p class="text-xs text-tinta-suave">Asistente de finanzas · en línea</p>
+      </div>
+      <button
+        id="chat-cerrar"
+        type="button"
+        aria-label="Cerrar chat"
+        class="grid size-9 place-items-center rounded-xl border-2 border-tinta bg-superficie shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+      >
+        <Icono nombre="cerrar" class="size-4" />
+      </button>
+    </header>
+
+    <!-- Mensajes -->
+    <div id="chat-mensajes" class="flex flex-1 flex-col gap-3 overflow-y-auto p-4" aria-live="polite">
+      <div class="max-w-[85%] self-start rounded-2xl rounded-tl-sm border-2 border-tinta bg-superficie px-3 py-2 text-sm">
+        ¡Hola! 👋 Soy tu mascota financiera. ¿En qué te ayudo hoy?
+      </div>
+    </div>
+
+    <!-- Preguntas rápidas -->
+    <div class="flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none]">
+      {
+        preguntasRapidas.map((p) => (
+          <button
+            type="button"
+            data-pregunta={p}
+            class="chip shrink-0 bg-primario-suave py-1 text-primario hover:bg-primario hover:text-white"
+          >
+            {p}
+          </button>
+        ))
+      }
+    </div>
+
+    <!-- Entrada -->
+    <form id="chat-form" class="flex items-center gap-2 border-t-2 border-tinta bg-superficie p-3">
+      <label for="chat-input" class="sr-only">Escribe tu mensaje</label>
+      <input
+        id="chat-input"
+        type="text"
+        autocomplete="off"
+        placeholder="Escribe tu pregunta..."
+        class="min-w-0 flex-1 rounded-xl border-2 border-tinta bg-fondo px-3 py-2 text-sm outline-none placeholder:text-tinta-suave focus:bg-superficie focus:ring-2 focus:ring-primario-claro"
+      />
+      <button
+        type="submit"
+        aria-label="Enviar"
+        class="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-accion text-white shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+      >
+        <Icono nombre="enviar" class="size-4" />
+      </button>
+    </form>
+  </section>
+</div>
+
+<script>
+  import { obtenerRespuesta } from "../../lib/chatbot";
+  import type { MensajeChat } from "../../types";
+
+  const boton = document.getElementById("chat-boton") as HTMLButtonElement;
+  const panel = document.getElementById("chat-panel") as HTMLElement;
+  const cerrar = document.getElementById("chat-cerrar") as HTMLButtonElement;
+  const form = document.getElementById("chat-form") as HTMLFormElement;
+  const input = document.getElementById("chat-input") as HTMLInputElement;
+  const lista = document.getElementById("chat-mensajes") as HTMLDivElement;
+
+  function abrir(abierto: boolean) {
+    panel.hidden = !abierto;
+    boton.hidden = abierto;
+    boton.setAttribute("aria-expanded", String(abierto));
+    if (abierto) input.focus();
+    else boton.focus();
+  }
+
+  function agregarMensaje({ autor, texto }: MensajeChat): HTMLDivElement {
+    const burbuja = document.createElement("div");
+    burbuja.className =
+      autor === "usuario"
+        ? "max-w-[85%] self-end rounded-2xl rounded-tr-sm border-2 border-tinta bg-primario px-3 py-2 text-sm text-white"
+        : "max-w-[85%] self-start rounded-2xl rounded-tl-sm border-2 border-tinta bg-superficie px-3 py-2 text-sm";
+    burbuja.textContent = texto;
+    lista.appendChild(burbuja);
+    lista.scrollTop = lista.scrollHeight;
+    return burbuja;
+  }
+
+  async function enviar(texto: string) {
+    const limpio = texto.trim();
+    if (!limpio) return;
+    agregarMensaje({ autor: "usuario", texto: limpio });
+    input.value = "";
+    const escribiendo = agregarMensaje({ autor: "bot", texto: "Escribiendo..." });
+    escribiendo.classList.add("italic", "text-tinta-suave");
+    const respuesta = await obtenerRespuesta(limpio);
+    escribiendo.remove();
+    agregarMensaje({ autor: "bot", texto: respuesta });
+  }
+
+  boton.addEventListener("click", () => abrir(true));
+  cerrar.addEventListener("click", () => abrir(false));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !panel.hidden) abrir(false);
+  });
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    enviar(input.value);
+  });
+  panel.querySelectorAll<HTMLButtonElement>("[data-pregunta]").forEach((b) =>
+    b.addEventListener("click", () => enviar(b.dataset.pregunta ?? "")),
+  );
+</script>

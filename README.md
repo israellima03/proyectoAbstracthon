@@ -1,46 +1,68 @@
-# Astro Starter Kit: Basics
+# App de ahorro en UFV (Hackathon)
+
+Astro + TypeScript + Tailwind CSS v4.
 
 ```sh
-npm create astro@latest -- --template basics
+npm install
+npm run dev     # http://localhost:4321
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Estructura
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```
+src/
+├─ pages/                 # una ruta por sección
+│  ├─ index.astro         # Inicio   → /
+│  ├─ pagos/index.astro   # Pagos    → /pagos
+│  ├─ ahorro/index.astro  # Ahorro   → /ahorro
+│  ├─ ufvs/index.astro    # UFVs     → /ufvs
+│  └─ perfil/index.astro  # Perfil   → /perfil
+├─ components/
+│  ├─ inicio/ pagos/ ahorro/ ufvs/ perfil/   # ← cada uno trabaja en SU carpeta
+│  ├─ ui/                 # piezas compartidas (Icono, botones, tarjetas...)
+│  ├─ layout/             # BarraInferior
+│  └─ chatbot/            # ChatFlotante (botón + panel de la mascota)
+├─ layouts/AppLayout.astro  # envuelve cada página (incluye barra y chat)
+├─ data/navegacion.ts     # pestañas de la barra inferior
+├─ lib/chatbot.ts         # respuestas del bot (cambiar por la API real)
+├─ types/                 # tipos TypeScript compartidos
+└─ styles/global.css      # TOKENS de diseño (colores, sombras, clases)
+public/img/mascota/       # imágenes de la mascota
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+Cada página usa:
 
-## 🧞 Commands
+```astro
+---
+import AppLayout from "../../layouts/AppLayout.astro";
+---
+<AppLayout titulo="Pagos"> ...tu contenido... </AppLayout>
+```
 
-All commands are run from the root of the project, from a terminal:
+## Guía de estilo (usar estos tokens, no colores sueltos)
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+| Uso | Clase Tailwind |
+|---|---|
+| Fondo crema / tarjeta blanca | `bg-fondo` / `bg-superficie` |
+| Texto y bordes oscuros | `text-tinta`, `border-tinta` |
+| Texto secundario | `text-tinta-suave` |
+| Primario índigo | `bg-primario`, `bg-primario-claro`, `bg-primario-suave` |
+| Casi al límite (amarillo) | `bg-alerta`, `bg-alerta-suave` |
+| Excedido (rojo) | `text-peligro`, `bg-peligro-suave` |
+| Bien (verde) | `bg-exito`, `bg-exito-suave` |
+| Botón principal terracota | `btn-accion` |
+| Tarjeta con borde + sombra dura | `tarjeta` |
+| Etiqueta tipo píldora | `chip` |
+| Sombras duras | `shadow-duro-sm`, `shadow-duro`, `shadow-duro-lg` |
 
-## 👀 Want to learn more?
+Fuente: **Plus Jakarta Sans**. Títulos `font-extrabold`, bordes `border-2 border-tinta`, esquinas `rounded-2xl`.
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Ejemplo:
+
+```html
+<div class="tarjeta p-4">
+  <h3 class="font-bold">Comida</h3>
+  <span class="chip bg-alerta-suave">Casi al límite</span>
+</div>
+<button class="btn-accion w-full py-4">Repartir sueldo</button>
+```

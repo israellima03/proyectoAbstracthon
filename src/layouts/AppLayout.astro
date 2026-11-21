@@ -1,0 +1,63 @@
+---
+import "../styles/global.css";
+import BarraInferior from "../components/layout/BarraInferior.astro";
+import ChatFlotante from "../components/chatbot/ChatFlotante.astro";
+
+interface Props {
+  titulo: string;
+}
+
+const { titulo } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f4ece1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <title>{titulo}</title>
+  </head>
+  <!--
+    En celular real: la app ocupa toda la pantalla.
+    En computadora (sm+): se muestra dentro de un marco de celular sobre fondo oscuro punteado.
+  -->
+  <body class="fondo-escritorio flex min-h-dvh items-center justify-center antialiased sm:py-8">
+    <div
+      class="relative flex h-dvh w-full flex-col overflow-hidden bg-fondo sm:h-[min(844px,calc(100dvh-4rem))] sm:w-[390px] sm:rounded-[3rem] sm:border-[10px] sm:border-tinta sm:shadow-[0_0_0_2px_#4a4760,0_30px_60px_-10px_rgb(0_0_0/0.6)]"
+    >
+      <!-- Barra de estado del celular (solo en el marco de computadora) -->
+      <div class="relative hidden h-11 shrink-0 items-center justify-between px-7 text-xs font-bold sm:flex">
+        <span>9:41</span>
+        <!-- Isla / notch -->
+        <span class="absolute top-2 left-1/2 h-6 w-24 -translate-x-1/2 rounded-full bg-tinta"></span>
+        <span class="flex items-center gap-1.5">
+          <svg viewBox="0 0 18 12" class="h-2.5 w-4" fill="currentColor" aria-hidden="true">
+            <rect x="0" y="8" width="3" height="4" rx="1"></rect><rect x="5" y="5" width="3" height="7" rx="1"></rect>
+            <rect x="10" y="2.5" width="3" height="9.5" rx="1"></rect><rect x="15" y="0" width="3" height="12" rx="1"></rect>
+          </svg>
+          <span class="flex h-3 w-6 items-center rounded-[4px] border-[1.5px] border-tinta p-[1.5px]">
+            <span class="h-full w-4/5 rounded-[2px] bg-tinta"></span>
+          </span>
+        </span>
+      </div>
+
+      <!-- Contenido con scroll propio -->
+      <main
+        class="flex-1 overflow-y-auto px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] [scrollbar-width:none] sm:pt-2"
+      >
+        <slot />
+      </main>
+
+      <ChatFlotante />
+      <BarraInferior />
+    </div>
+  </body>
+</html>
