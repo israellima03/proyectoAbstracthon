@@ -27,11 +27,12 @@ const { titulo } = Astro.props;
   </head>
   <!--
     En celular real: la app ocupa toda la pantalla.
-    En computadora (sm+): se muestra dentro de un marco de celular sobre fondo oscuro punteado.
+    En computadora (sm+): se muestra dentro de un marco de celular sobre fondo oscuro punteado,
+    reducido al 80% con `zoom` (por eso la altura usa 125dvh: 125% × 0.8 = 100% de la pantalla).
   -->
   <body class="fondo-escritorio flex min-h-dvh items-center justify-center antialiased sm:py-8">
     <div
-      class="relative flex h-dvh w-full flex-col overflow-hidden bg-fondo sm:h-[min(844px,calc(100dvh-4rem))] sm:w-[390px] sm:rounded-[3rem] sm:border-[10px] sm:border-tinta sm:shadow-[0_0_0_2px_#4a4760,0_30px_60px_-10px_rgb(0_0_0/0.6)]"
+      class="relative flex h-dvh w-full flex-col overflow-hidden bg-fondo sm:h-[min(844px,calc(125dvh-5rem))] sm:[zoom:0.8] sm:w-[390px] sm:rounded-[3rem] sm:border-[10px] sm:border-tinta sm:shadow-[0_0_0_2px_#4a4760,0_30px_60px_-10px_rgb(0_0_0/0.6)]"
     >
       <!-- Barra de estado del celular (solo en el marco de computadora) -->
       <div class="relative hidden h-11 shrink-0 items-center justify-between px-7 text-xs font-bold sm:flex">
