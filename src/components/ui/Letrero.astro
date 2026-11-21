@@ -1,0 +1,36 @@
+---
+/**
+ * Letrero temporal de cada sección.
+ * Cada compañero lo borra de su página cuando empiece a poner su contenido.
+ */
+import Icono from "./Icono.astro";
+import type { NombreIcono } from "./iconos";
+
+interface Props {
+  titulo: string;
+  icono: NombreIcono;
+  descripcion: string;
+  carpeta: string;
+}
+
+const { titulo, icono, descripcion, carpeta } = Astro.props;
+---
+
+<section class="flex min-h-full flex-col items-center justify-center gap-5 py-10 text-center">
+  <div
+    class="grid size-24 place-items-center rounded-3xl border-2 border-tinta bg-primario text-white shadow-duro-lg"
+  >
+    <Icono nombre={icono} class="size-12" trazo={2} />
+  </div>
+
+  <div class="tarjeta w-full px-6 py-5">
+    <p class="text-xs font-bold tracking-widest text-tinta-suave uppercase">Estás en</p>
+    <h1 class="mt-1 text-4xl font-extrabold tracking-tight">{titulo}</h1>
+    <p class="mt-1 text-sm text-tinta-suave">{descripcion}</p>
+  </div>
+
+  <span class="chip bg-alerta-suave">🚧 En construcción</span>
+  <p class="text-xs text-tinta-suave">
+    Componentes en <code class="font-semibold text-primario">src/components/{carpeta}/</code>
+  </p>
+</section>
