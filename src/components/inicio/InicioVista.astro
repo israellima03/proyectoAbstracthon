@@ -1,13 +1,14 @@
 
 ---
 import PlanificarMesModal from "./PlanificarMesModal.astro";
+import { usuario } from "../../data/perfil";
 ---
 
 <div class="space-y-5">
   <!-- Saludo + Botón Planificar mes -->
   <div class="flex items-center justify-between gap-2">
     <div>
-      <p class="text-sm font-medium text-[#1E1B4B]/75">Hola, Camila</p>
+      <p class="text-sm font-medium text-[#1E1B4B]/75">Hola, {usuario.nombreCorto}</p>
       <h1 class="text-2xl font-extrabold tracking-tight text-[#1E1B4B]">
         Tus cuentas hoy
       </h1>
@@ -89,10 +90,10 @@ import PlanificarMesModal from "./PlanificarMesModal.astro";
     </div>
 
     <div class="mt-5 flex items-end justify-between">
-      <p class="font-mono text-3xl font-extrabold tracking-tight text-[#1E1B4B]">
+      <p id="inicio-saldo" class="font-mono text-3xl font-extrabold tracking-tight text-[#1E1B4B]">
         Bs 3.450,00
       </p>
-      <span class="rounded-full border border-[#1E1B4B] bg-white px-3 py-0.5 text-xs font-bold text-[#1E1B4B]">
+      <span id="inicio-plan-chip" class="rounded-full border border-[#1E1B4B] bg-white px-3 py-0.5 text-xs font-bold text-[#1E1B4B]">
         Plan activo
       </span>
     </div>
@@ -142,19 +143,19 @@ import PlanificarMesModal from "./PlanificarMesModal.astro";
           <p class="text-xs text-[#1E1B4B]/75">Ahorros del 5% por ingreso</p>
         </div>
       </div>
-      <span class="rounded-full border border-emerald-800 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900">
+      <span id="inicio-hormiga-chip" class="rounded-full border border-emerald-800 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900">
         Agua lista
       </span>
     </div>
 
     <div class="mt-4 flex items-baseline justify-between">
-      <p class="font-mono text-2xl font-extrabold text-[#1E1B4B]">Bs 488,00</p>
-      <span class="text-xs font-medium text-[#1E1B4B]/75">
+      <p id="inicio-hormiga-total" class="font-mono text-2xl font-extrabold text-[#1E1B4B]">Bs 488,00</p>
+      <span id="inicio-hormiga-cantidad" class="text-xs font-medium text-[#1E1B4B]/75">
         3 subcuentas activas
       </span>
     </div>
 
-    <div class="mt-3 grid grid-cols-3 divide-x divide-[#1E1B4B]/15 rounded-xl border border-[#1E1B4B]/20 bg-[#FAF7F2] py-2.5 text-center">
+    <div id="inicio-hormiga-lista" class="mt-3 grid grid-cols-3 divide-x divide-[#1E1B4B]/15 rounded-xl border border-[#1E1B4B]/20 bg-[#FAF7F2] py-2.5 text-center">
       <div>
         <p class="text-xs text-[#1E1B4B]/75">Agua</p>
         <p class="mt-0.5 font-mono text-sm font-bold text-emerald-700">Bs 85</p>
@@ -193,22 +194,22 @@ import PlanificarMesModal from "./PlanificarMesModal.astro";
           <h2 class="text-base font-bold leading-tight text-[#1E1B4B]">
             Mis UFVs acumulados
           </h2>
-          <p class="text-xs text-[#1E1B4B]/75">1 UFV = Bs 2,5418 hoy</p>
+          <p id="inicio-ufv-valor" class="text-xs text-[#1E1B4B]/75">1 UFV = Bs 2,5418 hoy</p>
         </div>
       </div>
-      <span class="rounded-full border border-emerald-800 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900">
+      <span id="inicio-ufv-subida" class="rounded-full border border-emerald-800 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900">
         ↑ +9,04%
       </span>
     </div>
 
     <div class="mt-4 flex items-baseline justify-between">
-      <p class="font-mono text-2xl font-extrabold text-[#1E1B4B]">142,50 UFV</p>
-      <p class="font-mono text-sm font-medium text-[#1E1B4B]/75">≈ Bs 362,21</p>
+      <p id="inicio-ufv-saldo" class="font-mono text-2xl font-extrabold text-[#1E1B4B]">142,50 UFV</p>
+      <p id="inicio-ufv-bs" class="font-mono text-sm font-medium text-[#1E1B4B]/75">≈ Bs 362,21</p>
     </div>
 
     <!-- PON AQUI LA RUTA DE UFVs EN EL href -->
     <a
-      href="/ufvs"
+      href="/ufvs#operaciones"
       class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#1E1B4B] bg-[#3B38C4] py-3 text-sm font-bold text-white shadow-[0_3px_0_#1E1B4B] active:translate-y-0.5"
     >
       <svg
@@ -290,7 +291,7 @@ import PlanificarMesModal from "./PlanificarMesModal.astro";
         <div class="h-5 w-5 bg-[#3B38C4]"></div>
       </div>
 
-      <p class="mt-3 text-xs font-bold text-[#1E1B4B]">Titular: Camila · Cuenta de Ahorro</p>
+      <p class="mt-3 text-xs font-bold text-[#1E1B4B]">Titular: {usuario.nombre} · Cuenta de Ahorro</p>
       <p id="vencimiento-qr" class="mt-1 rounded-full border border-[#1E1B4B] bg-white px-3 py-0.5 text-xs font-semibold text-[#3B38C4]">
         Vence: 22/11/2026 · 16:51
       </p>
@@ -381,4 +382,9 @@ import PlanificarMesModal from "./PlanificarMesModal.astro";
       btn.textContent = textoOriginal;
     }, 1200);
   });
+</script>
+<script>
+  // Datos reales de Pagos, Ahorro y UFVs en las tarjetas de Inicio
+  import { iniciarDatosInicio } from "./inicio-datos";
+  iniciarDatosInicio();
 </script>
