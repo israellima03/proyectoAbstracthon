@@ -1,0 +1,29 @@
+---
+/**
+ * Racha de ahorro (idea 6): constancia diaria → puntos → recompensas.
+ * Se abre desde el botón de la llama en la barra superior.
+ */
+import AppLayout from "../../layouts/AppLayout.astro";
+import TarjetaRacha from "../../components/racha/TarjetaRacha.astro";
+import RetosHoy from "../../components/racha/RetosHoy.astro";
+import TarjetaRecompensas from "../../components/racha/TarjetaRecompensas.astro";
+import HojaRecompensas from "../../components/racha/HojaRecompensas.astro";
+---
+
+<AppLayout titulo="Racha">
+  <div class="flex flex-col gap-4">
+    <header>
+      <h1 class="text-3xl leading-tight font-extrabold tracking-tight">Tu racha</h1>
+      <p class="text-sm text-tinta-suave">Ahorra cada día o compra 1 UFV y gana puntos para canjear.</p>
+    </header>
+
+    <TarjetaRacha />
+    <RetosHoy />
+
+    <h2 class="mt-2 text-xl font-extrabold">Recompensas</h2>
+    <TarjetaRecompensas />
+  </div>
+
+  <!-- Ventana flotante con todas las recompensas -->
+  <HojaRecompensas />
+</AppLayout>
