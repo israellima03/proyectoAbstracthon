@@ -1,7 +1,6 @@
 ---
 import Icono from "../ui/Icono.astro";
 import AnuncioBanco from "../ui/AnuncioBanco.astro";
-import { VALOR_UFV, formatoCotizacion } from "../../lib/ufv";
 ---
 
 <!-- Encabezado -->
@@ -23,10 +22,7 @@ import { VALOR_UFV, formatoCotizacion } from "../../lib/ufv";
 
 <!-- Total ahorrado -->
 <section class="tarjeta p-4">
-  <div class="flex items-start justify-between gap-2">
-    <p class="text-[11px] font-bold tracking-wide text-tinta-suave uppercase">Total ahorrado</p>
-    <span class="chip bg-alerta-suave text-[11px]">1 UFV = Bs {formatoCotizacion(VALOR_UFV)}</span>
-  </div>
+  <p class="text-[11px] font-bold tracking-wide text-tinta-suave uppercase">Total ahorrado</p>
   <p class="mt-1 text-3xl font-extrabold text-primario">
     <span id="total-ufv">0,00</span> <span class="text-base">UFV</span>
   </p>

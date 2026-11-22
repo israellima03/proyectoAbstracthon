@@ -1,4 +1,4 @@
-# App de ahorro en UFV (Hackathon)
+# TuBille: ahorro en UFV (Hackathon)
 
 Astro + TypeScript + Tailwind CSS v4.
 
