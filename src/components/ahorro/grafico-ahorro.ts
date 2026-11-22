@@ -83,7 +83,8 @@ export function svgGraficoAhorro(datos: DatoMensual[]): string {
     )
     .join("");
   const ultimo = datos.at(-1)!;
-  const etiquetaFinal = `<text x="${centro(datos.length - 1)}" y="${yGanancia(ultimo.gananciaBs) - 7}" text-anchor="end" class="fill-exito text-[8px] font-extrabold">+Bs ${fmt2.format(ultimo.gananciaBs)}</text>`;
+  // A la izquierda del último punto, para no tapar la etiqueta de la barra
+  const etiquetaFinal = `<text x="${centro(datos.length - 1) - anchoBarra / 2 - 4}" y="${yGanancia(ultimo.gananciaBs) + 3}" text-anchor="end" class="fill-exito text-[8px] font-extrabold" paint-order="stroke" stroke="#f4ece1" stroke-width="3">+Bs ${fmt2.format(ultimo.gananciaBs)}</text>`;
 
   return `<svg viewBox="0 0 ${ancho} ${alto}" class="w-full" role="img" aria-label="Ahorro mensual en barras y dinero ganado por la UFV en línea">
     <line x1="${m.x}" x2="${ancho - m.x}" y1="${base}" y2="${base}" class="stroke-tinta" stroke-width="1.5"/>

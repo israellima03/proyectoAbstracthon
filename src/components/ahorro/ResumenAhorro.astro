@@ -1,5 +1,6 @@
 ---
 import Icono from "../ui/Icono.astro";
+import AnuncioBanco from "../ui/AnuncioBanco.astro";
 import { VALOR_UFV, formatoCotizacion } from "../../lib/ufv";
 ---
 
@@ -38,5 +39,5 @@ import { VALOR_UFV, formatoCotizacion } from "../../lib/ufv";
     <Icono nombre="escudo" class="size-3.5 text-primario" />
     <span><span id="total-progreso" class="font-bold text-tinta">0%</span> de todas tus metas · tu dinero no pierde valor</span>
   </p>
-  <p id="resumen-retiros" class="chip mt-3 bg-fondo text-[11px]">4/4 retiros disponibles este mes</p>
+  <AnuncioBanco class="mt-4" />
 </section>

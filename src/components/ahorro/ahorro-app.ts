@@ -1,6 +1,7 @@
 /**
  * Lógica de la pantalla de Ahorro (se ejecuta en el navegador).
  * Por ahora guarda los datos en localStorage; luego se cambia por el backend.
+ * Los retiros NO se hacen en la app (se hacen en la entidad bancaria).
  */
 import {
   INGRESO_DEMO,
@@ -10,43 +11,47 @@ import {
   subcuentasIniciales,
 } from "../../data/ahorro";
 import { mostrarAviso } from "../../lib/aviso";
-import {
-  MAX_RETIROS_MES,
-  RECORDATORIO_RETIROS,
-  registrarRetiro,
-  reiniciarRetiros,
-  retirosRestantes,
-  textoRetirosRestantes,
-} from "../../lib/retiros";
+import { cargarCuenta } from "../../lib/cuenta-ufv";
+import { RECORDATORIO_RETIROS } from "../../lib/retiros";
 import { bsAUfv, formatoBs, formatoUfv, ufvABs } from "../../lib/ufv";
-import type { SubcuentaAhorro } from "../../types";
+import type { MovimientoUfv, SubcuentaAhorro } from "../../types";
 import { svgIcono } from "../ui/iconos";
+import { calcularAhorroMensual, svgGraficoAhorro } from "./grafico-ahorro";
 
-const CLAVE_STORAGE = "ahorro:subcuentas:v1";
+const CLAVE_SUBCUENTAS = "ahorro:subcuentas:v1";
+/** Historial de lo que se va ahorrando en las metas (para el gráfico mensual). */
+const CLAVE_APORTES = "ahorro:aportes:v1";
 
 // ---------- Estado ----------
 interface Estado {
   subcuentas: SubcuentaAhorro[];
+  aportes: MovimientoUfv[];
   /** Ingreso pendiente de decidir (null = no hay sugerencia) */
   ingreso: number | null;
   porcentaje: number;
-  /** Subcuenta con el formulario de retiro abierto */
-  retirandoId: string | null;
 }
 
-function cargarSubcuentas(): SubcuentaAhorro[] {
+function leer<T>(clave: string, porDefecto: T): T {
   try {
-    const guardado = localStorage.getItem(CLAVE_STORAGE);
-    if (guardado) return JSON.parse(guardado) as SubcuentaAhorro[];
+    const guardado = localStorage.getItem(clave);
+    if (guardado) return JSON.parse(guardado) as T;
   } catch {
     /* sin storage: usamos los datos de ejemplo */
   }
-  return structuredClone(subcuentasIniciales);
+  return structuredClone(porDefecto);
 }
 
-function guardarSubcuentas(subcuentas: SubcuentaAhorro[]) {
+function escribir(clave: string, valor: unknown) {
   try {
-    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(subcuentas));
+    localStorage.setItem(clave, JSON.stringify(valor));
+  } catch {
+    /* ignorar */
+  }
+}
+
+function borrar(...claves: string[]) {
+  try {
+    claves.forEach((c) => localStorage.removeItem(c));
   } catch {
     /* ignorar */
   }
@@ -74,36 +79,11 @@ function colorChip(pct: number): string {
   return "bg-alerta-suave";
 }
 
-const botonSecundario =
-  "rounded-xl border-2 border-tinta bg-superficie font-bold shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none";
-
-function formularioRetiro(s: SubcuentaAhorro): string {
-  const restantes = retirosRestantes();
-  const maximo = Math.floor(ahorradoBs(s) * 100) / 100;
-  if (restantes === 0) {
-    return `<div class="mt-3 rounded-xl border-2 border-tinta bg-peligro-suave p-3 text-xs font-semibold">
-      ⚠️ ${textoRetirosRestantes(0)}
-      <button type="button" data-cancelar class="mt-2 block underline">Cerrar</button>
-    </div>`;
-  }
-  return `<form data-form-retiro="${s.id}" class="mt-3 space-y-2 rounded-xl border-2 border-tinta bg-fondo p-3">
-    <label for="retiro-${s.id}" class="block text-xs font-bold">¿Cuánto quieres retirar? (máx. ${formatoBs(maximo)})</label>
-    <div class="flex gap-2">
-      <input id="retiro-${s.id}" name="monto" type="number" inputmode="decimal" min="1" max="${maximo}" step="any" required placeholder="Bs"
-        class="min-w-0 flex-1 rounded-xl border-2 border-tinta bg-superficie px-3 py-2 text-sm font-bold outline-none focus:ring-2 focus:ring-primario-claro" />
-      <button type="submit" class="btn-accion px-4 text-sm">Retirar</button>
-      <button type="button" data-cancelar aria-label="Cancelar retiro" class="${botonSecundario} grid w-10 place-items-center">${svgIcono("cerrar", "size-4")}</button>
-    </div>
-    <p class="text-[11px] font-semibold">⚠️ ${textoRetirosRestantes(restantes)}</p>
-  </form>`;
-}
-
-function tarjetaSubcuenta(s: SubcuentaAhorro, retirando: boolean): string {
+function tarjetaSubcuenta(s: SubcuentaAhorro): string {
   const pct = progreso(s);
   const lista = estaLista(s);
   const fondoIcono = s.tipo === "servicio" ? "bg-primario-suave text-primario" : "bg-alerta-suave text-tinta";
   const textoAccion = s.tipo === "servicio" ? `Pagar ${escapar(s.nombre.toLowerCase())} ahora` : "Usar mi ahorro";
-  const puedeRetirar = s.ahorradoUfv > 0.001;
 
   return `
   <article class="tarjeta p-4" data-id="${s.id}">
@@ -116,7 +96,7 @@ function tarjetaSubcuenta(s: SubcuentaAhorro, retirando: boolean): string {
         <p class="text-xs text-tinta-suave">${formatoBs(Math.round(ahorradoBs(s)))} / ${formatoBs(s.objetivoBs)}
           <span class="whitespace-nowrap">(${formatoUfv(s.ahorradoUfv)} UFV)</span></p>
       </div>
-      <span class="chip shrink-0 ${colorChip(pct)}">${lista ? "✓ Lista" : `${Math.floor(pct)}%`}</span>
+      <span class="chip shrink-0 ${colorChip(pct)}">${lista ? `${svgIcono("check", "size-3", 3)} Lista` : `${Math.floor(pct)}%`}</span>
     </div>
 
     <div class="mt-3 h-3 overflow-hidden rounded-full border-2 border-tinta bg-fondo">
@@ -126,20 +106,14 @@ function tarjetaSubcuenta(s: SubcuentaAhorro, retirando: boolean): string {
     <div class="mt-2 flex items-center justify-between gap-2 text-xs">
       ${
         lista
-          ? `<span class="font-semibold text-exito">¡Meta cumplida! 🎉</span>`
-          : `<span class="font-semibold text-primario">Te faltan ${formatoBs(Math.ceil(faltaBs(s)))} 🎯</span>`
+          ? `<span class="flex items-center gap-1 font-semibold text-exito">${svgIcono("trofeo", "size-3.5")} ¡Meta cumplida!</span>`
+          : `<span class="flex items-center gap-1 font-semibold text-primario">${svgIcono("objetivo", "size-3.5")} Te faltan ${formatoBs(Math.ceil(faltaBs(s)))}</span>`
       }
-      ${
-        puedeRetirar && !retirando
-          ? `<button type="button" data-retirar="${s.id}" class="chip bg-superficie py-1 shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">${svgIcono("menos", "size-3", 3)} Retirar</button>`
-          : ""
-      }
+      <span class="text-tinta-suave">Meta: ${formatoUfv(bsAUfv(s.objetivoBs))} UFV</span>
     </div>
 
-    ${retirando ? formularioRetiro(s) : ""}
-
     ${
-      lista && !retirando
+      lista
         ? `<button type="button" data-pagar="${s.id}"
             class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-tinta bg-exito py-2.5 text-sm font-bold text-white shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
             ${svgIcono("listo", "size-4")} ${textoAccion}
@@ -152,10 +126,10 @@ function tarjetaSubcuenta(s: SubcuentaAhorro, retirando: boolean): string {
 // ---------- App ----------
 export function iniciarAhorro() {
   const estado: Estado = {
-    subcuentas: cargarSubcuentas(),
+    subcuentas: leer(CLAVE_SUBCUENTAS, subcuentasIniciales),
+    aportes: leer<MovimientoUfv[]>(CLAVE_APORTES, []),
     ingreso: INGRESO_DEMO, // la demo arranca con un ingreso recibido
     porcentaje: PORCENTAJE_SUGERIDO,
-    retirandoId: null,
   };
 
   function renderResumen() {
@@ -168,18 +142,21 @@ export function iniciarAhorro() {
     $("total-bs").textContent = formatoBs(Math.round(ufvABs(totalUfv)));
     $("total-barra").style.width = `${pct}%`;
     $("total-progreso").textContent = `${Math.floor(pct)}%`;
+  }
 
-    const restantes = retirosRestantes();
-    const chip = $("resumen-retiros");
-    chip.textContent = `${restantes}/${MAX_RETIROS_MES} retiros disponibles este mes`;
-    chip.classList.toggle("bg-peligro-suave", restantes === 0);
-    chip.classList.toggle("bg-fondo", restantes > 0);
+  /** Gráfico mensual: cuenta UFV + lo ahorrado en las metas. */
+  function renderGrafico() {
+    const movimientos = [...cargarCuenta().movimientos, ...estado.aportes];
+    const datos = calcularAhorroMensual(movimientos);
+    const mejor = datos.reduce((a, b) => (b.ahorradoBs > a.ahorradoBs ? b : a));
+    $("ga-svg").innerHTML = svgGraficoAhorro(datos);
+    $("ga-mejor-mes").textContent = mejor.ahorradoBs > 0 ? mejor.nombre : "—";
+    $("ga-mejor-monto").textContent = formatoBs(redondear(mejor.ahorradoBs));
+    $("ga-ganancia").textContent = `+Bs ${formatoUfv(datos.at(-1)!.gananciaBs)}`;
   }
 
   function renderSubcuentas() {
-    $("lista-subcuentas").innerHTML = estado.subcuentas
-      .map((s) => tarjetaSubcuenta(s, s.id === estado.retirandoId))
-      .join("");
+    $("lista-subcuentas").innerHTML = estado.subcuentas.map(tarjetaSubcuenta).join("");
 
     // Selector de destino (mantiene la opción elegida)
     const select = $<HTMLSelectElement>("sug-destino");
@@ -217,6 +194,7 @@ export function iniciarAhorro() {
 
   function render() {
     renderResumen();
+    renderGrafico();
     renderSubcuentas();
     renderSugerencia();
   }
@@ -241,16 +219,19 @@ export function iniciarAhorro() {
     const montoBs = redondear((estado.ingreso * estado.porcentaje) / 100);
     const montoUfv = bsAUfv(montoBs);
     destino.ahorradoUfv += montoUfv;
-    guardarSubcuentas(estado.subcuentas);
+    estado.aportes.push({ tipo: "compra", ufv: montoUfv, fecha: new Date().toISOString() });
+    escribir(CLAVE_SUBCUENTAS, estado.subcuentas);
+    escribir(CLAVE_APORTES, estado.aportes);
 
     estado.ingreso = null;
     estado.porcentaje = PORCENTAJE_SUGERIDO;
     render();
     mostrarAviso(RECORDATORIO_RETIROS, {
       tipo: "exito",
+      icono: estaLista(destino) ? "trofeo" : "ahorro",
       titulo: estaLista(destino)
-        ? `¡${destino.nombre} llegó al 100%! 🎉`
-        : `¡Ahorraste ${formatoUfv(montoUfv)} UFV en ${destino.nombre}! 💪`,
+        ? `¡${destino.nombre} llegó al 100%!`
+        : `¡Ahorraste ${formatoUfv(montoUfv)} UFV en ${destino.nombre}!`,
     });
   });
 
@@ -272,70 +253,22 @@ export function iniciarAhorro() {
     $("sugerencia").scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  // --- Eventos de las tarjetas: pagar, abrir/cerrar retiro ---
-  const lista = $("lista-subcuentas");
-  lista.addEventListener("click", (e) => {
-    const objetivo = e.target as HTMLElement;
-
-    const botonRetirar = objetivo.closest<HTMLButtonElement>("[data-retirar]");
-    if (botonRetirar) {
-      estado.retirandoId = botonRetirar.dataset.retirar ?? null;
-      renderSubcuentas();
-      document.getElementById(`retiro-${estado.retirandoId}`)?.focus();
-      return;
-    }
-
-    if (objetivo.closest("[data-cancelar]")) {
-      estado.retirandoId = null;
-      renderSubcuentas();
-      return;
-    }
-
-    const botonPagar = objetivo.closest<HTMLButtonElement>("[data-pagar]");
-    if (!botonPagar) return;
-    const s = estado.subcuentas.find((x) => x.id === botonPagar.dataset.pagar);
+  // --- Pagar un servicio / usar una meta que llegó al 100% ---
+  $("lista-subcuentas").addEventListener("click", (e) => {
+    const boton = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-pagar]");
+    if (!boton) return;
+    const s = estado.subcuentas.find((x) => x.id === boton.dataset.pagar);
     if (!s) return;
     // Se descuenta lo que cuesta; si sobró algo queda para el próximo mes
     s.ahorradoUfv = Math.max(0, s.ahorradoUfv - bsAUfv(s.objetivoBs));
-    guardarSubcuentas(estado.subcuentas);
+    escribir(CLAVE_SUBCUENTAS, estado.subcuentas);
     render();
     mostrarAviso(
       s.tipo === "servicio"
-        ? `Pagaste ${s.nombre.toLowerCase()} con tus ahorros hormiga ✅`
-        : `¡Disfruta tu ${s.nombre.toLowerCase()}! Meta reiniciada ✅`,
+        ? `Pagaste ${s.nombre.toLowerCase()} con tus ahorros hormiga.`
+        : `¡Disfruta tu ${s.nombre.toLowerCase()}! Meta reiniciada.`,
       { tipo: "exito" },
     );
-  });
-
-  // --- Retiro de una subcuenta (cuenta para el límite de 4 al mes) ---
-  lista.addEventListener("submit", (e) => {
-    const form = (e.target as HTMLElement).closest<HTMLFormElement>("[data-form-retiro]");
-    if (!form) return;
-    e.preventDefault();
-    const s = estado.subcuentas.find((x) => x.id === form.dataset.formRetiro);
-    const montoBs = redondear(Number(new FormData(form).get("monto")));
-    if (!s || !(montoBs > 0)) return;
-
-    if (retirosRestantes() === 0) {
-      mostrarAviso(textoRetirosRestantes(0), { tipo: "alerta", titulo: "Sin retiros disponibles" });
-      return;
-    }
-    if (montoBs > ahorradoBs(s) + 0.001) {
-      mostrarAviso(`En ${s.nombre} solo tienes ${formatoBs(Math.floor(ahorradoBs(s) * 100) / 100)}.`, {
-        tipo: "alerta",
-      });
-      return;
-    }
-
-    s.ahorradoUfv = Math.max(0, s.ahorradoUfv - bsAUfv(montoBs));
-    guardarSubcuentas(estado.subcuentas);
-    const restantes = registrarRetiro();
-    estado.retirandoId = null;
-    render();
-    mostrarAviso(textoRetirosRestantes(restantes), {
-      tipo: "alerta",
-      titulo: `Retiraste ${formatoBs(montoBs)} de ${s.nombre}`,
-    });
   });
 
   // --- Eventos: nueva meta ---
@@ -362,26 +295,21 @@ export function iniciarAhorro() {
       objetivoBs,
       ahorradoUfv: 0,
     });
-    guardarSubcuentas(estado.subcuentas);
+    escribir(CLAVE_SUBCUENTAS, estado.subcuentas);
     formNueva.reset();
     formNueva.classList.add("hidden");
     botonNueva.setAttribute("aria-expanded", "false");
     render();
-    mostrarAviso(`Meta "${nombre}" creada 🎯`);
+    mostrarAviso(`Meta "${nombre}" creada.`, { icono: "objetivo" });
   });
 
   // --- Reiniciar demo ---
   $("reiniciar-demo").addEventListener("click", () => {
-    try {
-      localStorage.removeItem(CLAVE_STORAGE);
-    } catch {
-      /* ignorar */
-    }
-    reiniciarRetiros();
+    borrar(CLAVE_SUBCUENTAS, CLAVE_APORTES);
     estado.subcuentas = structuredClone(subcuentasIniciales);
+    estado.aportes = [];
     estado.ingreso = INGRESO_DEMO;
     estado.porcentaje = PORCENTAJE_SUGERIDO;
-    estado.retirandoId = null;
     render();
     mostrarAviso("Demo reiniciada");
   });

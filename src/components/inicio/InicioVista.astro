@@ -1,7 +1,8 @@
-
 ---
+import Icono from "../ui/Icono.astro";
 import PlanificarMesModal from "./PlanificarMesModal.astro";
 ---
+
 
 <div class="space-y-5">
   <!-- Saludo + Botón Planificar mes -->
@@ -197,7 +198,7 @@ import PlanificarMesModal from "./PlanificarMesModal.astro";
         </div>
       </div>
       <span class="rounded-full border border-emerald-800 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900">
-        ↑ +9,04%
+        <span class="inline-flex items-center gap-1"><Icono nombre="ufvs" class="size-3.5" trazo={2.5} /> +9,04%</span>
       </span>
     </div>
 
@@ -238,7 +239,7 @@ import PlanificarMesModal from "./PlanificarMesModal.astro";
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-extrabold text-[#1E1B4B]">Pagar con QR</h3>
       <button id="btn-cerrar-pagar" type="button" class="font-bold text-[#1E1B4B]">
-        ✕
+        <Icono nombre="cerrar" class="size-4" trazo={2.5} />
       </button>
     </div>
 
@@ -269,7 +270,7 @@ import PlanificarMesModal from "./PlanificarMesModal.astro";
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-extrabold text-[#1E1B4B]">QR para Cobrar</h3>
       <button id="btn-cerrar-cobrar" type="button" class="font-bold text-[#1E1B4B]">
-        ✕
+        <Icono nombre="cerrar" class="size-4" trazo={2.5} />
       </button>
     </div>
 
