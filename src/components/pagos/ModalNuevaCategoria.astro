@@ -1,0 +1,85 @@
+<div
+  id="modal-nueva-categoria"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-3 backdrop-blur-xs"
+>
+  <div
+    class="max-h-[85dvh] w-full max-w-[19rem] overflow-y-auto overscroll-contain rounded-2xl border-2 border-zinc-900 bg-[#F7F2E9] p-3.5 shadow-[3px_3px_0px_#18181B]"
+  >
+    <div class="mb-2.5 flex items-center justify-between gap-2">
+      <h3 class="text-sm font-black text-zinc-900">Nueva categoría de gasto</h3>
+      <button
+        id="btn-cerrar-cat"
+        type="button"
+        aria-label="Cerrar"
+        class="shrink-0 rounded-lg border-2 border-zinc-900 bg-white px-2 text-sm font-bold leading-6"
+      >
+        ✕
+      </button>
+    </div>
+
+    <form id="form-nueva-categoria" class="space-y-2.5">
+      <div>
+        <label class="mb-1 block text-[10px] font-extrabold uppercase text-zinc-700">
+          Nombre del motivo *
+        </label>
+        <input
+          id="input-cat-nombre"
+          type="text"
+          placeholder="Ej: Mascotas, Gimnasio..."
+          class="w-full rounded-xl border-2 border-zinc-900 bg-white px-2.5 py-1.5 text-xs font-semibold focus:border-[#3B38D0] focus:outline-none"
+        />
+        <p id="error-cat-nombre" class="mt-1 hidden text-[11px] font-bold text-red-600">
+          Mínimo 2 letras y que no exista ya.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="mb-1 block text-[10px] font-extrabold uppercase text-zinc-700">Ícono</label>
+          <select
+            id="select-cat-icono"
+            class="w-full rounded-xl border-2 border-zinc-900 bg-white px-2 py-1.5 text-xs font-bold"
+          >
+            <option value="📌">📌 General</option>
+            <option value="🐾">🐾 Mascotas</option>
+            <option value="🌐">🌐 Internet</option>
+            <option value="💊">💊 Salud</option>
+            <option value="🎮">🎮 Juegos</option>
+            <option value="🏠">🏠 Hogar</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-[10px] font-extrabold uppercase text-zinc-700">
+            Tope (Bs)
+          </label>
+          <input
+            id="input-cat-presupuesto"
+            type="number"
+            min="1"
+            value="300"
+            class="w-full rounded-xl border-2 border-zinc-900 bg-white px-2 py-1.5 text-xs font-bold"
+          />
+        </div>
+      </div>
+
+      <label
+        class="flex cursor-pointer items-center gap-2 rounded-xl border-2 border-zinc-900 bg-white p-2.5"
+      >
+        <input id="check-cat-pasivo" type="checkbox" class="h-4 w-4 shrink-0 accent-[#3B38D0]" />
+        <span class="text-[11px] font-bold leading-snug text-zinc-800">
+          Marcar como <strong>gasto pasivo / suscripción fija</strong>
+        </span>
+      </label>
+
+      <button
+        id="btn-guardar-categoria"
+        type="submit"
+        disabled
+        class="w-full rounded-xl border-2 border-zinc-900 bg-[#3B38D0] py-2 text-xs font-extrabold text-white shadow-[2px_2px_0px_#18181B] transition disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:opacity-60 disabled:shadow-none"
+      >
+        Guardar categoría
+      </button>
+    </form>
+  </div>
+</div>

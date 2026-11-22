@@ -1,0 +1,63 @@
+---
+import Icono from "../ui/Icono.astro";
+import { usuario } from "../../data/perfil";
+---
+
+<header class="flex items-start justify-between gap-3">
+  <div>
+    <span class="chip bg-primario-suave text-[10px] tracking-wide text-primario uppercase">
+      <Icono nombre="perfil" class="size-3" trazo={2.5} /> Tu cuenta
+    </span>
+    <h1 class="mt-2 text-3xl leading-tight font-extrabold tracking-tight">Mi perfil</h1>
+  </div>
+  <a
+    href="#racha"
+    aria-label="Ver mi racha"
+    class="grid size-11 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-superficie text-accion shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+  >
+    <Icono nombre="llama" class="size-5" />
+  </a>
+</header>
+
+<section class="tarjeta flex items-start gap-4 p-4">
+  <div class="relative shrink-0">
+    <div
+      class="grid size-16 place-items-center rounded-2xl border-2 border-tinta bg-primario-suave text-xl font-extrabold text-primario"
+      aria-hidden="true"
+    >
+      {usuario.iniciales}
+    </div>
+    <span
+      class="absolute -right-1.5 -bottom-1.5 grid size-6 place-items-center rounded-full border-2 border-tinta bg-accion text-white"
+      aria-hidden="true"
+    >
+      <Icono nombre="llama" class="size-3.5" trazo={2.5} />
+    </span>
+  </div>
+
+  <div class="min-w-0 flex-1">
+    <h2 class="truncate text-lg leading-tight font-extrabold">{usuario.nombre}</h2>
+    <p class="truncate text-sm text-tinta-suave">{usuario.correo}</p>
+    <span class="chip mt-2 bg-primario text-[10px] tracking-wide text-white uppercase">
+      <Icono nombre="estrella" class="size-3 fill-alerta text-alerta" />
+      Nivel {usuario.nivel} · {usuario.titulo}
+    </span>
+  </div>
+
+  <button
+    type="button"
+    data-editar-perfil
+    aria-label="Editar perfil"
+    class="grid size-9 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-superficie text-primario shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+  >
+    <Icono nombre="lapiz" class="size-4" />
+  </button>
+</section>
+
+<script>
+  import { avisar } from "./navegador";
+
+  document
+    .querySelector("[data-editar-perfil]")
+    ?.addEventListener("click", () => avisar("Muy pronto podrás editar tus datos.", "info", "Editar perfil"));
+</script>
