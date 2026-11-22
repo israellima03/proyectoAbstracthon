@@ -1,0 +1,340 @@
+---
+import AppLayout from "../../layouts/AppLayout.astro";
+import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astro";
+---
+
+<AppLayout titulo="Comprobante">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  />
+
+  <div class="px-4 pt-5 pb-24 text-zinc-900">
+    <!-- Si no se encuentra el pago -->
+    <section
+      id="vista-no-encontrado"
+      class="hidden rounded-2xl border-2 border-zinc-900 bg-white p-4 text-center shadow-[4px_4px_0px_#18181B]"
+    >
+      <i class="fa-solid fa-file-circle-question text-3xl text-zinc-400"></i>
+      <h1 class="mt-1 text-base font-black">No encontramos este comprobante</h1>
+      <p class="mt-1 text-[11px] font-semibold text-zinc-600">
+        Puede que el pago ya no exista o el enlace sea incorrecto.
+      </p>
+      <a
+        href="/pagos"
+        class="mt-3 inline-block rounded-xl border-2 border-zinc-900 bg-[#3B38D0] px-4 py-2 text-xs font-black text-white shadow-[3px_3px_0px_#18181B]"
+      >
+        Ir a Pagos
+      </a>
+    </section>
+
+    <!-- Comprobante -->
+    <div id="vista-comprobante" class="hidden">
+      <!-- Encabezado de éxito -->
+      <div class="flex flex-col items-center text-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-zinc-900 bg-[#A7F3D0] text-3xl text-emerald-700 shadow-[3px_3px_0px_#18181B]">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h1 class="mt-2.5 text-xl font-black tracking-tight">¡Pago exitoso!</h1>
+        <p class="text-[11px] font-semibold text-zinc-600">Tu transferencia fue procesada</p>
+      </div>
+
+      <!-- Ticket -->
+      <section class="mt-4 rounded-2xl border-2 border-zinc-900 bg-white p-4 shadow-[4px_4px_0px_#18181B]">
+        <div class="text-center">
+          <p class="text-[10px] font-extrabold uppercase text-zinc-500">Monto pagado</p>
+          <p id="r-monto" class="text-3xl font-black text-[#3B38D0]">Bs 0,00</p>
+        </div>
+
+        <div class="my-3 border-t-2 border-dashed border-zinc-300"></div>
+
+        <dl class="divide-y divide-zinc-100">
+          <div class="flex items-start justify-between gap-3 py-1.5">
+            <dt class="shrink-0 text-[10px] font-bold uppercase text-zinc-500">Destinatario</dt>
+            <dd id="r-comercio" class="min-w-0 break-words text-right text-xs font-black"></dd>
+          </div>
+
+          <div id="fila-detalle" class="hidden items-start justify-between gap-3 py-1.5">
+            <dt class="shrink-0 text-[10px] font-bold uppercase text-zinc-500">Detalle</dt>
+            <dd id="r-detalle" class="min-w-0 break-words text-right text-xs font-bold"></dd>
+          </div>
+
+          <div class="flex items-start justify-between gap-3 py-1.5">
+            <dt class="shrink-0 text-[10px] font-bold uppercase text-zinc-500">Fecha</dt>
+            <dd id="r-fecha" class="text-right text-xs font-bold"></dd>
+          </div>
+
+          <div class="flex items-start justify-between gap-3 py-1.5">
+            <dt class="shrink-0 text-[10px] font-bold uppercase text-zinc-500">Hora</dt>
+            <dd id="r-hora" class="text-right text-xs font-bold"></dd>
+          </div>
+
+          <div class="flex items-start justify-between gap-3 py-1.5">
+            <dt class="shrink-0 text-[10px] font-bold uppercase text-zinc-500">Nº de operación</dt>
+            <dd id="r-operacion" class="text-right font-mono text-xs font-bold"></dd>
+          </div>
+
+          <div class="flex items-start justify-between gap-3 py-1.5">
+            <dt class="shrink-0 text-[10px] font-bold uppercase text-zinc-500">Cuenta origen</dt>
+            <dd class="text-right text-xs font-bold">Billetera UFV • Principal</dd>
+          </div>
+
+          <div class="flex items-start justify-between gap-3 py-1.5">
+            <dt class="shrink-0 text-[10px] font-bold uppercase text-zinc-500">Método</dt>
+            <dd class="text-right text-xs font-bold">
+              <i class="fa-solid fa-qrcode mr-1"></i>Pago por QR
+            </dd>
+          </div>
+
+          <div class="flex items-center justify-between gap-3 py-1.5">
+            <dt class="shrink-0 text-[10px] font-bold uppercase text-zinc-500">Estado</dt>
+            <dd class="rounded-full border border-zinc-900 bg-[#A7F3D0] px-2 py-0.5 text-[10px] font-black">
+              <i class="fa-solid fa-circle-check mr-1"></i>Completado
+            </dd>
+          </div>
+
+          <div class="flex items-start justify-between gap-3 py-1.5">
+            <dt class="shrink-0 text-[10px] font-bold uppercase text-zinc-500">Saldo disponible</dt>
+            <dd id="r-saldo" class="text-right text-xs font-black"></dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Categoría (solo si el modo clasificación está activo) -->
+      <section
+        id="bloque-categoria"
+        class="mt-4 hidden space-y-1.5 rounded-2xl border-2 border-zinc-900 bg-[#F7F2E9] p-3 shadow-[3px_3px_0px_#18181B]"
+      >
+        <div class="flex items-center justify-between gap-2">
+          <label for="select-categoria" class="text-[10px] font-extrabold uppercase text-zinc-800">
+            Categoría
+          </label>
+          <button
+            id="btn-abrir-modal-cat"
+            type="button"
+            class="shrink-0 rounded-lg border-2 border-zinc-900 bg-[#FDE047] px-2 py-0.5 text-[10px] font-black shadow-[2px_2px_0px_#18181B]"
+          >
+            <i class="fa-solid fa-plus mr-0.5"></i>Nueva
+          </button>
+        </div>
+
+        <select
+          id="select-categoria"
+          class="w-full rounded-xl border-2 border-zinc-900 bg-white px-2.5 py-2 text-xs font-bold focus:border-[#3B38D0] focus:outline-none"
+        >
+          <option value="">Sin clasificar</option>
+        </select>
+
+        <p
+          id="msg-guardado"
+          class="hidden text-[11px] font-extrabold text-emerald-700"
+          role="status"
+        >
+          <i class="fa-solid fa-check mr-1"></i>Categoría guardada
+        </p>
+
+        <p
+          id="aviso-caja-hormiga"
+          class="hidden rounded-lg border border-zinc-900 bg-[#A7F3D0] px-2.5 py-1.5 text-[11px] font-bold text-zinc-900"
+        >
+          <i class="fa-solid fa-lightbulb mr-1"></i>Puedes usar tu Caja Virtual Hormiga.
+        </p>
+      </section>
+
+      <!-- Acciones -->
+      <div class="mt-4 space-y-2">
+        <a
+          href="/pagos"
+          class="block w-full rounded-xl border-2 border-zinc-900 bg-[#3B38D0] py-2.5 text-center text-xs font-black text-white shadow-[3px_3px_0px_#18181B] transition active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+        >
+          Volver a Pagos
+        </a>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            id="btn-compartir"
+            type="button"
+            class="rounded-xl border-2 border-zinc-900 bg-white py-2 text-[11px] font-black shadow-[2px_2px_0px_#18181B] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+          >
+            <i class="fa-solid fa-share-nodes mr-1"></i>Compartir
+          </button>
+          <a
+            href="/pagos/nuevo"
+            class="rounded-xl border-2 border-zinc-900 bg-[#FDE047] py-2 text-center text-[11px] font-black shadow-[2px_2px_0px_#18181B] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+          >
+            <i class="fa-solid fa-plus mr-1"></i>Otro pago
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ModalNuevaCategoria />
+
+  <script>
+    import {
+      getModoReportes,
+      getSaldo,
+      getCategorias,
+      agregarCategoria,
+      getPagos,
+      clasificarPago,
+    } from "../../lib/pagosStore";
+
+    const bs = (n: number) =>
+      `Bs ${n.toLocaleString("es-BO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    const id = new URLSearchParams(window.location.search).get("id");
+    const pago = getPagos().find((p) => p.id === id);
+
+    const vistaNoEncontrado = document.getElementById("vista-no-encontrado")!;
+    const vistaComprobante = document.getElementById("vista-comprobante")!;
+
+    if (!pago) {
+      vistaNoEncontrado.classList.remove("hidden");
+    } else {
+      vistaComprobante.classList.remove("hidden");
+
+      // ---- Datos del comprobante ----
+      const fechaLarga = new Date(pago.fecha + "T00:00:00").toLocaleDateString("es-BO", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      const digitos = pago.id.replace(/\D/g, "");
+      const nroOperacion = "OP-" + digitos.slice(-8).padStart(8, "0");
+
+      document.getElementById("r-monto")!.textContent = bs(pago.monto);
+      document.getElementById("r-comercio")!.textContent = pago.comercio;
+      document.getElementById("r-fecha")!.textContent = fechaLarga;
+      document.getElementById("r-hora")!.textContent = pago.hora;
+      document.getElementById("r-operacion")!.textContent = nroOperacion;
+      document.getElementById("r-saldo")!.textContent = bs(getSaldo());
+
+      if (pago.detalle) {
+        document.getElementById("r-detalle")!.textContent = pago.detalle;
+        const filaDetalle = document.getElementById("fila-detalle")!;
+        filaDetalle.classList.remove("hidden");
+        filaDetalle.classList.add("flex");
+      }
+
+      // ---- Categoría ----
+      const bloqueCategoria = document.getElementById("bloque-categoria")!;
+      const selectCategoria = document.getElementById("select-categoria") as HTMLSelectElement;
+      const avisoHormiga = document.getElementById("aviso-caja-hormiga")!;
+      const msgGuardado = document.getElementById("msg-guardado")!;
+      let timerMsg: number | undefined;
+
+      function mostrarGuardado() {
+        msgGuardado.classList.remove("hidden");
+        window.clearTimeout(timerMsg);
+        timerMsg = window.setTimeout(() => msgGuardado.classList.add("hidden"), 1800);
+      }
+
+      function actualizarAviso() {
+        avisoHormiga.classList.toggle("hidden", selectCategoria.value !== "servicios");
+      }
+
+      function cargarCategorias(seleccionarId: string) {
+        selectCategoria.innerHTML = `<option value="">Sin clasificar</option>`;
+        getCategorias().forEach((cat) => {
+          const opt = document.createElement("option");
+          opt.value = cat.id;
+          opt.textContent = `${cat.nombre}${cat.esPasivo ? " (Pasivo)" : ""}`;
+          selectCategoria.appendChild(opt);
+        });
+        selectCategoria.value = seleccionarId;
+        actualizarAviso();
+      }
+
+      if (getModoReportes()) {
+        bloqueCategoria.classList.remove("hidden");
+        cargarCategorias(pago.categoriaId ?? "");
+
+        selectCategoria.addEventListener("change", () => {
+          clasificarPago(pago.id, selectCategoria.value === "" ? null : selectCategoria.value);
+          actualizarAviso();
+          mostrarGuardado();
+        });
+      }
+
+      // ---- Compartir ----
+      const btnCompartir = document.getElementById("btn-compartir") as HTMLButtonElement;
+      const htmlCompartir = btnCompartir.innerHTML;
+
+      btnCompartir.addEventListener("click", async () => {
+        const texto = [
+          "Comprobante de pago - Billetera UFV",
+          `Monto: ${bs(pago.monto)}`,
+          `Destinatario: ${pago.comercio}`,
+          pago.detalle ? `Detalle: ${pago.detalle}` : "",
+          `Fecha: ${fechaLarga} ${pago.hora}`,
+          `Nº de operación: ${nroOperacion}`,
+        ]
+          .filter(Boolean)
+          .join("\n");
+
+        try {
+          if (navigator.share) {
+            await navigator.share({ title: "Comprobante de pago", text: texto });
+          } else {
+            await navigator.clipboard.writeText(texto);
+            btnCompartir.innerHTML = `<i class="fa-solid fa-check mr-1"></i>Copiado`;
+            setTimeout(() => (btnCompartir.innerHTML = htmlCompartir), 1800);
+          }
+        } catch {
+          /* el usuario canceló */
+        }
+      });
+
+      // ---- Modal nueva categoría ----
+      const modalCat = document.getElementById("modal-nueva-categoria")!;
+      const inputCatNombre = document.getElementById("input-cat-nombre") as HTMLInputElement;
+      const selectCatIcono = document.getElementById("select-cat-icono") as HTMLSelectElement;
+      const inputCatPresupuesto = document.getElementById("input-cat-presupuesto") as HTMLInputElement;
+      const checkCatPasivo = document.getElementById("check-cat-pasivo") as HTMLInputElement;
+      const btnGuardarCat = document.getElementById("btn-guardar-categoria") as HTMLButtonElement;
+      const errorCatNombre = document.getElementById("error-cat-nombre")!;
+
+      document.getElementById("btn-abrir-modal-cat")?.addEventListener("click", () => {
+        modalCat.classList.remove("hidden");
+        modalCat.classList.add("flex");
+      });
+
+      document.getElementById("btn-cerrar-cat")?.addEventListener("click", () => {
+        modalCat.classList.add("hidden");
+        modalCat.classList.remove("flex");
+      });
+
+      inputCatNombre.addEventListener("input", () => {
+        const nombre = inputCatNombre.value.trim();
+        const duplicado = getCategorias().some((c) => c.nombre.toLowerCase() === nombre.toLowerCase());
+        const valido = nombre.length >= 2 && !duplicado;
+        btnGuardarCat.disabled = !valido;
+        errorCatNombre.classList.toggle("hidden", valido || nombre.length === 0);
+      });
+
+      document.getElementById("form-nueva-categoria")?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (btnGuardarCat.disabled) return;
+
+        const nueva = agregarCategoria(
+          inputCatNombre.value,
+          selectCatIcono.value,
+          checkCatPasivo.checked,
+          Number(inputCatPresupuesto.value)
+        );
+
+        // Se asigna automáticamente la nueva categoría a este pago
+        clasificarPago(pago.id, nueva.id);
+        cargarCategorias(nueva.id);
+        mostrarGuardado();
+
+        inputCatNombre.value = "";
+        btnGuardarCat.disabled = true;
+        modalCat.classList.add("hidden");
+        modalCat.classList.remove("flex");
+      });
+    }
+  </script>
+</AppLayout>
