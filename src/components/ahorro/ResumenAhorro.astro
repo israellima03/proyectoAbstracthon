@@ -1,16 +1,11 @@
 ---
 import Icono from "../ui/Icono.astro";
-import { VALOR_UFV, formatoCotizacion } from "../../lib/ufv";
+import AnuncioBanco from "../ui/AnuncioBanco.astro";
 ---
 
 <!-- Encabezado -->
-<header class="mb-4 flex items-start justify-between gap-3">
-  <div>
-    <span class="chip bg-primario-suave text-[10px] tracking-wide text-primario uppercase">
-      <Icono nombre="escudo" class="size-3" trazo={2.5} /> Escudo anti-inflación
-    </span>
-    <h1 class="mt-2 text-3xl leading-tight font-extrabold tracking-tight">Ahorro en UFV</h1>
-  </div>
+<header class="mb-4 flex items-center justify-between gap-3">
+  <h1 class="text-3xl leading-tight font-extrabold tracking-tight">Ahorro en UFV</h1>
   <a
     href="/ufvs"
     aria-label="Ver evolución de la UFV"
@@ -22,10 +17,7 @@ import { VALOR_UFV, formatoCotizacion } from "../../lib/ufv";
 
 <!-- Total ahorrado -->
 <section class="tarjeta p-4">
-  <div class="flex items-start justify-between gap-2">
-    <p class="text-[11px] font-bold tracking-wide text-tinta-suave uppercase">Total ahorrado</p>
-    <span class="chip bg-alerta-suave text-[11px]">1 UFV = Bs {formatoCotizacion(VALOR_UFV)}</span>
-  </div>
+  <p class="text-[11px] font-bold tracking-wide text-tinta-suave uppercase">Total ahorrado</p>
   <p class="mt-1 text-3xl font-extrabold text-primario">
     <span id="total-ufv">0,00</span> <span class="text-base">UFV</span>
   </p>
@@ -38,5 +30,5 @@ import { VALOR_UFV, formatoCotizacion } from "../../lib/ufv";
     <Icono nombre="escudo" class="size-3.5 text-primario" />
     <span><span id="total-progreso" class="font-bold text-tinta">0%</span> de todas tus metas · tu dinero no pierde valor</span>
   </p>
-  <p id="resumen-retiros" class="chip mt-3 bg-fondo text-[11px]">4/4 retiros disponibles este mes</p>
+  <AnuncioBanco class="mt-4" />
 </section>

@@ -1,6 +1,7 @@
 ---
 /**
- * Comprar UFV (depósito por QR desde la Caja de Ahorros) y retirar UFV a Bs.
+ * Comprar UFV (depósito por QR desde la Caja de Ahorros) + movimientos.
+ * Los retiros no se hacen en la app: se hacen en la entidad bancaria (ver AnuncioBanco).
  */
 import Icono from "../ui/Icono.astro";
 import { MINIMO_DEPOSITO_UFV } from "../../lib/ufv";
@@ -8,84 +9,60 @@ import { RECORDATORIO_RETIROS } from "../../lib/retiros";
 
 const campo =
   "w-full bg-transparent py-2.5 text-xl font-extrabold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none";
-const tab = "flex-1 rounded-lg py-2 text-sm font-bold transition-colors";
 ---
 
 <section id="operaciones" class="tarjeta mt-5 scroll-mt-4 p-4">
-  <!-- Pestañas -->
-  <div class="flex gap-1 rounded-xl border-2 border-tinta bg-fondo p-1" role="tablist">
-    <button type="button" role="tab" data-modo="comprar" class={tab}>Comprar UFV</button>
-    <button type="button" role="tab" data-modo="retirar" class={tab}>Retirar a Bs</button>
-  </div>
-
-  <!-- ===== Comprar ===== -->
-  <div id="panel-comprar" class="mt-4" role="tabpanel">
-    <div id="comprar-form-wrap">
-      <h2 class="font-extrabold">Depositar vía QR</h2>
-      <p class="text-xs text-tinta-suave">Desde tu Caja de Ahorros, sin ir al banco.</p>
-
-      <div class="mt-3 flex items-center justify-between text-xs font-bold">
-        <label for="comprar-ufv">Monto a comprar (UFV)</label>
-        <span class="text-tinta-suave">Mínimo {MINIMO_DEPOSITO_UFV} UFV</span>
+  <div id="comprar-form-wrap">
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <h2 class="font-extrabold">Comprar UFV vía QR</h2>
+        <p class="text-xs text-tinta-suave">Desde tu Caja de Ahorros, sin ir al banco.</p>
       </div>
-      <div class="mt-1 flex items-center gap-2 rounded-xl border-2 border-tinta bg-fondo px-3">
-        <input id="comprar-ufv" type="number" inputmode="decimal" min={MINIMO_DEPOSITO_UFV} step="any" value="35" class={campo} />
-        <span class="shrink-0 text-sm font-bold text-tinta-suave">= <span id="comprar-bs">Bs 0</span></span>
-      </div>
-      <p id="comprar-error" class="mt-1 hidden text-xs font-semibold text-peligro"></p>
-
-      <p class="mt-3 flex gap-1.5 rounded-lg bg-primario-suave p-2 text-[11px] text-primario">
-        <Icono nombre="campana" class="size-3.5 shrink-0" /> {RECORDATORIO_RETIROS}
-      </p>
-
-      <button id="comprar-btn" type="button" class="btn-accion mt-3 w-full py-3 text-sm">
-        Generar QR por <span id="comprar-btn-ufv">35</span> UFV
-      </button>
+      <span class="grid size-9 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-primario-suave text-primario">
+        <Icono nombre="pagos" class="size-4" />
+      </span>
     </div>
-
-    <!-- QR generado -->
-    <div id="qr-area" class="hidden text-center">
-      <h2 class="font-extrabold">Escanea para pagar</h2>
-      <p class="text-xs text-tinta-suave">Abre tu app bancaria y escanea este QR.</p>
-      <div id="qr-svg" class="mx-auto mt-3 w-44 rounded-xl border-2 border-tinta bg-white p-2 shadow-duro-sm"></div>
-      <p class="mt-3 text-sm">
-        Pagas <b id="qr-bs">Bs 0</b> → recibes <b class="text-primario"><span id="qr-ufv">0</span> UFV</b>
-      </p>
-      <div class="mt-3 grid grid-cols-2 gap-2">
-        <button
-          id="qr-cancelar"
-          type="button"
-          class="rounded-[0.875rem] border-2 border-tinta bg-superficie py-2.5 text-sm font-bold shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-        >
-          Cancelar
-        </button>
-        <button id="qr-confirmar" type="button" class="btn-accion py-2.5 text-sm">Ya pagué</button>
-      </div>
-      <p class="mt-2 text-[10px] text-tinta-suave">Demo: "Ya pagué" simula la confirmación del banco.</p>
-    </div>
-  </div>
-
-  <!-- ===== Retirar ===== -->
-  <div id="panel-retirar" class="mt-4 hidden" role="tabpanel">
-    <h2 class="font-extrabold">Convertir UFV a bolivianos</h2>
-    <p class="text-xs text-tinta-suave">El dinero llega a tu Caja de Ahorros.</p>
 
     <div class="mt-3 flex items-center justify-between text-xs font-bold">
-      <label for="retirar-ufv">Monto a retirar (UFV)</label>
-      <button id="retirar-todo" type="button" class="text-primario underline underline-offset-2">Todo</button>
+      <label for="comprar-ufv">Monto a comprar (UFV)</label>
+      <span class="text-tinta-suave">Mínimo {MINIMO_DEPOSITO_UFV} UFV</span>
     </div>
     <div class="mt-1 flex items-center gap-2 rounded-xl border-2 border-tinta bg-fondo px-3">
-      <input id="retirar-ufv" type="number" inputmode="decimal" min="0.01" step="any" placeholder="0" class={campo} />
-      <span class="shrink-0 text-sm font-bold text-tinta-suave">= <span id="retirar-bs">Bs 0</span></span>
+      <input id="comprar-ufv" type="number" inputmode="decimal" min={MINIMO_DEPOSITO_UFV} step="any" value="35" class={campo} />
+      <span class="shrink-0 text-sm font-bold text-tinta-suave">= <span id="comprar-bs">Bs 0</span></span>
     </div>
-    <p id="retirar-error" class="mt-1 hidden text-xs font-semibold text-peligro"></p>
+    <p id="comprar-error" class="mt-1 hidden text-xs font-semibold text-peligro"></p>
 
-    <p id="retirar-aviso" class="mt-3 flex gap-1.5 rounded-lg border-2 border-tinta bg-alerta-suave p-2 text-xs font-semibold">
+    <p class="mt-3 flex gap-1.5 rounded-lg bg-primario-suave p-2 text-[11px] text-primario">
+      <Icono nombre="banco" class="size-3.5 shrink-0" /> {RECORDATORIO_RETIROS}
     </p>
 
-    <button id="retirar-btn" type="button" class="btn-accion mt-3 w-full py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50">
-      Retirar
+    <button id="comprar-btn" type="button" class="btn-accion mt-3 w-full py-3 text-sm">
+      Generar QR por <span id="comprar-btn-ufv">35</span> UFV
     </button>
+  </div>
+
+  <!-- QR generado -->
+  <div id="qr-area" class="hidden text-center">
+    <h2 class="font-extrabold">Escanea para pagar</h2>
+    <p class="text-xs text-tinta-suave">Abre tu app bancaria y escanea este QR.</p>
+    <div id="qr-svg" class="mx-auto mt-3 w-44 rounded-xl border-2 border-tinta bg-white p-2 shadow-duro-sm"></div>
+    <p class="mt-3 flex items-center justify-center gap-1.5 text-sm">
+      Pagas <b id="qr-bs">Bs 0</b>
+      <Icono nombre="flecha" class="size-4 text-tinta-suave" />
+      recibes <b class="text-primario"><span id="qr-ufv">0</span> UFV</b>
+    </p>
+    <div class="mt-3 grid grid-cols-2 gap-2">
+      <button
+        id="qr-cancelar"
+        type="button"
+        class="rounded-[0.875rem] border-2 border-tinta bg-superficie py-2.5 text-sm font-bold shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+      >
+        Cancelar
+      </button>
+      <button id="qr-confirmar" type="button" class="btn-accion py-2.5 text-sm">Ya pagué</button>
+    </div>
+    <p class="mt-2 text-[10px] text-tinta-suave">Demo: "Ya pagué" simula la confirmación del banco.</p>
   </div>
 </section>
 

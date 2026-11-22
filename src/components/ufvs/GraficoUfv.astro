@@ -37,7 +37,9 @@ const area = `${linea} L${puntos.at(-1)!.x},${base} L${puntos[0].x},${base} Z`;
       <p class="text-[11px] font-bold tracking-wide text-tinta-suave uppercase">Cotización oficial hoy</p>
       <p class="text-xl font-extrabold">1 UFV = Bs {formatoCotizacion(VALOR_UFV)}</p>
     </div>
-    <span class="chip shrink-0 bg-exito-suave text-exito">↑ +{crecimiento.toFixed(2).replace(".", ",")}%</span>
+    <span class="chip shrink-0 bg-exito-suave text-exito">
+      <Icono nombre="ufvs" class="size-3.5" trazo={2.5} /> +{crecimiento.toFixed(2).replace(".", ",")}%
+    </span>
   </div>
   <p class="mt-1 text-xs text-tinta-suave">Así subió la UFV en los últimos {meses} meses</p>
 
@@ -71,7 +73,7 @@ const area = `${linea} L${puntos.at(-1)!.x},${base} L${puntos[0].x},${base} Z`;
   </div>
 
   <div class="mt-3 flex gap-2 rounded-xl border-2 border-tinta bg-alerta-suave p-3 text-xs leading-relaxed">
-    <span class="text-base">💡</span>
+    <Icono nombre="idea" class="size-5 shrink-0" />
     <p>
       <b>Ejemplo:</b> quien compró <b>{ejemploUfv} UFV</b> en {inicio.nombre} pagó <b>Bs {formatoUfv(bsAntes)}</b>.
       Hoy valen <b>Bs {formatoUfv(bsHoy)}</b>: ganó <b class="text-exito">+Bs {formatoUfv(bsHoy - bsAntes)}</b> sin hacer nada.

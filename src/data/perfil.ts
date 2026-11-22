@@ -50,11 +50,12 @@ export const retos: Reto[] = [
     accion: { tipo: "enlace", href: "/ufvs#operaciones" },
   },
   {
-    id: "motivo-pagos",
-    titulo: "Registra el motivo de 3 pagos",
+    // Se completa solo cuando en Pagos no quedan pagos del mes "Sin tipo"
+    id: "clasificar-pagos",
+    titulo: "Clasifica tus pagos sin tipo",
+    detalle: "en Pagos",
     puntos: 20,
     icono: "pagos",
-    listo: true,
     accion: { tipo: "enlace", href: "/pagos" },
   },
   {

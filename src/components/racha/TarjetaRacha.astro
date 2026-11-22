@@ -74,7 +74,7 @@ const enRiesgo = !racha.ayerCumplido;
       <p class="text-xs leading-snug">
         <span data-ahorrar-detalle>
           {enRiesgo ? "Ayer no ahorraste. Cubre lo de ayer + lo de hoy antes de que termine el día." : "Ahorra tu monto diario o compra al menos 1 UFV."}
-        </span>
+        </span>{" "}
         Te quedan <b data-cuenta-atras>--:--</b> h.
       </p>
     </div>
@@ -109,7 +109,7 @@ const enRiesgo = !racha.ayerCumplido;
 </p>
 
 <script>
-  import { alCambiar } from "./estado";
+  import { alCambiar } from "../perfil/estado";
   import { nivelRacha, siguienteHito } from "../../lib/racha";
 
   const todos = (sel: string) => document.querySelectorAll<HTMLElement>(sel);

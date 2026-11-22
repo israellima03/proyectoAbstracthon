@@ -99,17 +99,28 @@ export interface ResultadoAhorroDia {
   puntos: number;
 }
 
-/**
- * Registra una compra de UFV como el ahorro del día.
- * Devuelve null si hoy ya estaba cubierto (solo suma el reto de transferir).
- */
+/** Compra de UFV en la pestaña UFVs: completa el reto de transferir y cuenta como ahorro del día. */
 export function registrarCompraUfv(ufv: number): ResultadoAhorroDia | null {
+  return registrarAhorroDelDia(ufv, "transferir-ufv");
+}
+
+/** Ahorro de un % de un ingreso en la pestaña Ahorro (va a una subcuenta en UFV). */
+export function registrarAhorroSubcuenta(ufv: number): ResultadoAhorroDia | null {
+  return registrarAhorroDelDia(ufv);
+}
+
+/**
+ * Registra un ahorro en UFV como el ahorro del día.
+ * `retoExtra` se completa siempre (aunque hoy ya estuviera cubierto).
+ * Devuelve null si hoy ya estaba cubierto o el monto no alcanza.
+ */
+function registrarAhorroDelDia(ufv: number, retoExtra?: string): ResultadoAhorroDia | null {
   const estado = cargarRacha();
-  const puntosTransferir = completarReto(estado, "transferir-ufv");
+  const puntosTransferir = retoExtra ? completarReto(estado, retoExtra) : 0;
   const recupera = !estado.ayerCumplido;
   const diasSumados = recupera ? 2 : 1;
 
-  // 1 UFV por día como mínimo (el depósito mínimo de 30 UFV siempre lo cubre)
+  // 1 UFV por día como mínimo (el depósito mínimo de 2 UFV siempre lo cubre)
   if (estado.hoyCumplido || ufv < diasSumados) {
     guardarRacha(estado);
     return null;

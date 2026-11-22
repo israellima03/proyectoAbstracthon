@@ -1,6 +1,7 @@
 export interface CategoriaPago {
   id: string;
   nombre: string;
+  /** Ícono: clase de Font Awesome (ej. "fa-tag"). Las categorías por defecto usan ICONOS_DEFAULT de pages/pagos. */
   icono: string;
   esPasivo: boolean;
   presupuestoMensual: number;
@@ -32,12 +33,12 @@ const KEYS = {
 };
 
 export const CATEGORIAS_DEFAULT: CategoriaPago[] = [
-  { id: 'comida', nombre: 'Comida y merienda', icono: '🍽️', esPasivo: false, presupuestoMensual: 1200 },
-  { id: 'servicios', nombre: 'Servicios (Luz/Agua/Gas)', icono: '💡', esPasivo: true, presupuestoMensual: 400 },
-  { id: 'suscripciones', nombre: 'Suscripciones y pasivos', icono: '🔄', esPasivo: true, presupuestoMensual: 250 },
-  { id: 'estudios', nombre: 'Estudios y libros', icono: '📚', esPasivo: false, presupuestoMensual: 500 },
-  { id: 'transporte', nombre: 'Transporte', icono: '🚌', esPasivo: false, presupuestoMensual: 450 },
-  { id: 'gustitos', nombre: 'Ropa y gustitos', icono: '🛍️', esPasivo: false, presupuestoMensual: 300 },
+  { id: 'comida', nombre: 'Comida y merienda', icono: 'comida', esPasivo: false, presupuestoMensual: 1200 },
+  { id: 'servicios', nombre: 'Servicios (Luz/Agua/Gas)', icono: 'luz', esPasivo: true, presupuestoMensual: 400 },
+  { id: 'suscripciones', nombre: 'Suscripciones y pasivos', icono: 'repetir', esPasivo: true, presupuestoMensual: 250 },
+  { id: 'estudios', nombre: 'Estudios y libros', icono: 'libro', esPasivo: false, presupuestoMensual: 500 },
+  { id: 'transporte', nombre: 'Transporte', icono: 'bus', esPasivo: false, presupuestoMensual: 450 },
+  { id: 'gustitos', nombre: 'Ropa y gustitos', icono: 'bolsa', esPasivo: false, presupuestoMensual: 300 },
 ];
 
 const PAGOS_INICIALES: PagoItem[] = [
@@ -141,7 +142,7 @@ export function agregarCategoria(nombre: string, icono: string, esPasivo: boolea
   const nueva: CategoriaPago = {
     id: 'cat-' + Date.now(),
     nombre: nombre.trim(),
-    icono: icono || '📌',
+    icono: icono || 'fa-tag',
     esPasivo,
     presupuestoMensual: presupuestoMensual > 0 ? presupuestoMensual : 500,
   };
@@ -205,8 +206,8 @@ export function generarAlertas(pagos: PagoItem[], categorias: CategoriaPago[]): 
   if (sinTipo.length > 0) {
     alertas.push({
       tipo: 'warning',
-      titulo: `Tienes ${sinTipo.length} pago(s) "Sin tipo"`,
-      mensaje: 'Asígnales categoría en tu extracto de abajo para que tus porcentajes del mes sean exactos.',
+      titulo: `${sinTipo.length} pago(s) sin clasificar`,
+      mensaje: 'Clasifícalos para ver tu reporte exacto.',
     });
   }
 
@@ -219,8 +220,8 @@ export function generarAlertas(pagos: PagoItem[], categorias: CategoriaPago[]): 
     if (porcentajeGustitos >= 25) {
       alertas.push({
         tipo: 'warning',
-        titulo: `¡Ojo con los gustitos! (${porcentajeGustitos}% de tus gastos)`,
-        mensaje: `Llevas Bs ${gastoGustitos.toFixed(0)} en ropa y gustitos este mes. Bajar este ritmo te daría más margen para convertir a UFVs.`,
+        titulo: `Gustitos: ${porcentajeGustitos}% de tus gastos`,
+        mensaje: `Bs ${gastoGustitos.toFixed(0)} este mes. Bajarlo te deja más para ahorrar.`,
       });
     }
 
@@ -232,8 +233,8 @@ export function generarAlertas(pagos: PagoItem[], categorias: CategoriaPago[]): 
     if (gastoPasivo > 0) {
       alertas.push({
         tipo: 'info',
-        titulo: `Pagos pasivos y servicios: Bs ${gastoPasivo.toFixed(0)}`,
-        mensaje: 'Recuerda que puedes cubrir Luz o Agua usando tu Caja Virtual Hormiga del 5%.',
+        titulo: `Servicios y pasivos: Bs ${gastoPasivo.toFixed(0)}`,
+        mensaje: 'Cubre luz o agua con tu Caja Hormiga.',
       });
     }
   }
@@ -241,8 +242,8 @@ export function generarAlertas(pagos: PagoItem[], categorias: CategoriaPago[]): 
   if (alertas.length === 0) {
     alertas.push({
       tipo: 'success',
-      titulo: '¡Tus pagos van súper ordenados!',
-      mensaje: 'Todos tus movimientos están clasificados y dentro de tus límites del mes.',
+      titulo: 'Todo en orden',
+      mensaje: 'Tus pagos están clasificados.',
     });
   }
 

@@ -29,7 +29,7 @@ const { titulo, icono, descripcion, carpeta } = Astro.props;
     <p class="mt-1 text-sm text-tinta-suave">{descripcion}</p>
   </div>
 
-  <span class="chip bg-alerta-suave">🚧 En construcción</span>
+  <span class="chip bg-alerta-suave"><Icono nombre="alerta" class="size-3.5" /> En construcción</span>
   <p class="text-xs text-tinta-suave">
     Componentes en <code class="font-semibold text-primario">src/components/{carpeta}/</code>
   </p>

@@ -6,21 +6,6 @@ export function avisar(mensaje: string, tipo: TipoAviso = "exito", titulo?: stri
   mostrarAviso(mensaje, { tipo, titulo });
 }
 
-/** Abre el chat de Cecilio (ChatFlotante, en AppLayout). */
-export function abrirChatCecilio() {
-  document.getElementById("chat-boton")?.click();
-}
-
-/** Abre el chat y le envía una pregunta a Cecilio como si el usuario la escribiera. */
-export function preguntarACecilio(pregunta: string) {
-  abrirChatCecilio();
-  const input = document.getElementById("chat-input") as HTMLInputElement | null;
-  const form = document.getElementById("chat-form") as HTMLFormElement | null;
-  if (!input || !form) return;
-  input.value = pregunta;
-  form.requestSubmit();
-}
-
 export function abrirHoja(id: string) {
   const hoja = document.getElementById(id);
   if (!hoja) return;

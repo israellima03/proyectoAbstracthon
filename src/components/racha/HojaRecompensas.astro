@@ -3,7 +3,7 @@
 import HojaInferior from "./HojaInferior.astro";
 import Icono from "../ui/Icono.astro";
 import { categoriasPremio, premios, racha } from "../../data/perfil";
-import { miles } from "./formato";
+import { miles } from "../perfil/formato";
 
 const tab = "flex-1 rounded-lg py-2 text-xs font-bold transition-colors";
 ---
@@ -85,9 +85,9 @@ const tab = "flex-1 rounded-lg py-2 text-xs font-bold transition-colors";
 </HojaInferior>
 
 <script>
-  import { alCambiar, canjear } from "./estado";
-  import { miles } from "./formato";
-  import { avisar } from "./navegador";
+  import { alCambiar, canjear } from "../perfil/estado";
+  import { miles } from "../perfil/formato";
+  import { avisar } from "../perfil/navegador";
 
   const tabs = document.querySelectorAll<HTMLButtonElement>("[data-categoria]");
   const items = document.querySelectorAll<HTMLElement>("[data-premio]");

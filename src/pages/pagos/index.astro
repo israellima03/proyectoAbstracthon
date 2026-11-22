@@ -5,9 +5,14 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
 ---
 
 <AppLayout titulo="Pagos y Reportes">
-  <div class="px-4 pt-5 pb-24 text-zinc-900">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  />
+
+  <div class="px-4 pt-1 pb-24 text-zinc-900">
     <!-- Barra superior -->
-    <header class="flex flex-wrap items-center justify-between gap-2">
+    <header class="relative flex items-center justify-between gap-2">
       <div class="min-w-0">
         <h1 class="text-2xl font-black tracking-tight">Pagos</h1>
         <p class="text-[11px] font-semibold text-zinc-600">Extractos y control inteligente</p>
@@ -15,18 +20,38 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
 
       <div class="flex shrink-0 items-center gap-1.5">
         <button
+          id="btn-campana"
+          type="button"
+          aria-label="Notificaciones"
+          class="relative flex h-8 w-8 items-center justify-center rounded-xl border-2 border-zinc-900 bg-white text-sm shadow-[2px_2px_0px_#18181B]"
+        >
+          <i class="fa-solid fa-bell"></i>
+          <span
+            id="badge-alertas"
+            class="absolute -top-2 -right-2 hidden h-5 min-w-5 items-center justify-center rounded-full border-2 border-zinc-900 bg-rose-500 px-1 text-[10px] font-black text-white"
+          >
+            0
+          </span>
+        </button>
+
+        <button
           id="btn-abrir-tutorial"
           type="button"
-          class="rounded-xl border-2 border-zinc-900 bg-[#FDE047] px-2 py-1 text-[11px] font-black shadow-[2px_2px_0px_#18181B]"
+          aria-label="Tutorial"
+          class="flex h-8 w-8 items-center justify-center rounded-xl border-2 border-zinc-900 bg-[#FDE047] text-sm shadow-[2px_2px_0px_#18181B]"
         >
-          ? Tutorial
+          <i class="fa-solid fa-question"></i>
         </button>
-        <a
-          href="/pagos/nuevo"
-          class="rounded-xl border-2 border-zinc-900 bg-[#3B38D0] px-2.5 py-1 text-[11px] font-black text-white shadow-[2px_2px_0px_#18181B]"
-        >
-          + Pagar QR
-        </a>
+
+      </div>
+
+      <!-- Panel de notificaciones -->
+      <div
+        id="panel-alertas"
+        class="absolute top-full right-0 z-40 mt-2 hidden w-72 rounded-2xl border-2 border-zinc-900 bg-white p-2.5 shadow-[4px_4px_0px_#18181B]"
+      >
+        <p class="mb-1.5 text-[10px] font-extrabold uppercase text-zinc-500">Notificaciones</p>
+        <div id="contenedor-alertas" class="space-y-1.5"></div>
       </div>
     </header>
 
@@ -47,8 +72,6 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
 
     <!-- Sección inteligente -->
     <div id="seccion-inteligente" class="mt-4 space-y-4">
-      <section id="contenedor-alertas" class="space-y-2"></section>
-
       <section class="rounded-2xl border-2 border-zinc-900 bg-white p-3.5 shadow-[4px_4px_0px_#18181B]">
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0">
@@ -65,6 +88,15 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
 
         <div id="lista-barras-reporte" class="mt-3 space-y-3"></div>
 
+        <button
+          id="btn-ver-mas-cat"
+          type="button"
+          class="mt-2.5 hidden w-full items-center justify-center gap-1.5 rounded-lg border-2 border-zinc-900 bg-[#F7F2E9] py-1 text-[11px] font-extrabold hover:bg-[#FDE047]"
+        >
+          <span id="texto-ver-mas">Ver más</span>
+          <i id="icono-ver-mas" class="fa-solid fa-chevron-down text-[10px] transition-transform"></i>
+        </button>
+
         <div class="mt-3 flex items-center justify-between gap-2 border-t-2 border-dashed border-zinc-300 pt-2.5">
           <button
             id="btn-limpiar-filtro"
@@ -78,7 +110,7 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
             type="button"
             class="ml-auto rounded-lg border-2 border-zinc-900 bg-[#F7F2E9] px-2 py-1 text-[11px] font-extrabold hover:bg-[#FDE047]"
           >
-            + Crear categoría
+            <i class="fa-solid fa-plus mr-1"></i>Crear categoría
           </button>
         </div>
       </section>
@@ -119,11 +151,28 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
     } from "../../lib/pagosStore";
 
     let filtroCategoriaId: string | null = null;
+    let reporteExpandido = false;
+    const LIMITE_VISIBLE = 4;
 
     const esc = (t: string) =>
       String(t).replace(/[&<>"']/g, (c) =>
         ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!
       );
+
+    // Iconos de Font Awesome por categoría (funciona aunque en localStorage queden emojis viejos)
+    const ICONOS_DEFAULT: Record<string, string> = {
+      comida: "fa-utensils",
+      servicios: "fa-bolt",
+      suscripciones: "fa-rotate",
+      estudios: "fa-book",
+      transporte: "fa-bus",
+      gustitos: "fa-bag-shopping",
+    };
+    const iconoCat = (c: { id: string; icono: string }) => {
+      const clase =
+        ICONOS_DEFAULT[c.id] ?? (c.icono && c.icono.startsWith("fa-") ? c.icono : "fa-tag");
+      return `<i class="fa-solid ${clase}"></i>`;
+    };
 
     const toggleModo = document.getElementById("toggle-modo-reportes") as HTMLInputElement;
     const textoEstadoModo = document.getElementById("texto-estado-modo")!;
@@ -136,6 +185,29 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
     const tituloExtractos = document.getElementById("titulo-extractos")!;
     const btnLimpiarFiltro = document.getElementById("btn-limpiar-filtro")!;
 
+    const btnVerMas = document.getElementById("btn-ver-mas-cat")!;
+    const textoVerMas = document.getElementById("texto-ver-mas")!;
+    const iconoVerMas = document.getElementById("icono-ver-mas")!;
+
+    btnVerMas.addEventListener("click", () => {
+      reporteExpandido = !reporteExpandido;
+      renderizarTodo();
+    });
+
+    // ---- Notificaciones ----
+    const btnCampana = document.getElementById("btn-campana")!;
+    const panelAlertas = document.getElementById("panel-alertas")!;
+    const badgeAlertas = document.getElementById("badge-alertas")!;
+
+    btnCampana.addEventListener("click", (e) => {
+      e.stopPropagation();
+      panelAlertas.classList.toggle("hidden");
+    });
+    document.addEventListener("click", (e) => {
+      if (!panelAlertas.contains(e.target as Node)) panelAlertas.classList.add("hidden");
+    });
+
+    // ---- Tutorial ----
     const modalTutorial = document.getElementById("modal-tutorial")!;
     function abrirTutorial() {
       modalTutorial.classList.remove("hidden");
@@ -160,43 +232,56 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
 
       toggleModo.checked = modoActivo;
       seccionInteligente.classList.toggle("hidden", !modoActivo);
+      btnCampana.classList.toggle("hidden", !modoActivo);
+      if (!modoActivo) panelAlertas.classList.add("hidden");
 
       textoEstadoModo.textContent = modoActivo
         ? "Activo: clasifica gastos y recibe alertas inteligentes."
         : "Desactivado: modo billetera común (solo extractos simples).";
 
       if (modoActivo) {
+        // ---- Alertas como notificaciones ----
         const alertas = generarAlertas(pagos, categorias);
+        const iconosAlerta = {
+          warning: "fa-triangle-exclamation",
+          info: "fa-circle-info",
+          success: "fa-circle-check",
+        };
+        const coloresAlerta = {
+          warning: "bg-[#FDE047]",
+          info: "bg-[#E0E7FF]",
+          success: "bg-[#A7F3D0]",
+        };
+
         contenedorAlertas.innerHTML = alertas
-          .map((a) => {
-            const bg =
-              a.tipo === "warning"
-                ? "bg-[#FDE047]"
-                : a.tipo === "success"
-                  ? "bg-[#A7F3D0]"
-                  : "bg-white";
-            return `
-              <div class="rounded-2xl border-2 border-zinc-900 ${bg} p-3 shadow-[3px_3px_0px_#18181B]">
-                <p class="text-[11px] font-black leading-snug text-zinc-900">🤖 ${a.titulo}</p>
-                <p class="mt-0.5 text-[11px] font-semibold leading-snug text-zinc-800">${a.mensaje}</p>
-              </div>
-            `;
-          })
+          .map(
+            (a) => `
+              <div class="flex gap-2 rounded-xl border-2 border-zinc-900 ${coloresAlerta[a.tipo]} p-2">
+                <i class="fa-solid ${iconosAlerta[a.tipo]} mt-0.5 text-xs"></i>
+                <div class="min-w-0">
+                  <p class="text-[11px] font-black leading-snug text-zinc-900">${a.titulo}</p>
+                  <p class="text-[10px] font-semibold leading-snug text-zinc-800">${a.mensaje}</p>
+                </div>
+              </div>`
+          )
           .join("");
 
+        const pendientes = alertas.filter((a) => a.tipo !== "success").length;
+        badgeAlertas.textContent = String(pendientes);
+        badgeAlertas.classList.toggle("hidden", pendientes === 0);
+        badgeAlertas.classList.toggle("flex", pendientes > 0);
+
+        // ---- Reporte ----
         const total = pagos.reduce((acc, p) => acc + p.monto, 0);
         totalGastadoMes.textContent = `Bs ${total.toLocaleString("es-BO", { minimumFractionDigits: 2 })}`;
 
-        const resumen = categorias
-          .map((cat) => {
-            const suma = pagos
-              .filter((p) => p.categoriaId === cat.id)
-              .reduce((acc, p) => acc + p.monto, 0);
-            const pct = total > 0 ? Math.round((suma / total) * 100) : 0;
-            return { ...cat, suma, pct };
-          })
-          .filter((item) => item.suma > 0)
-          .sort((a, b) => b.suma - a.suma);
+        const resumen = categorias.map((cat) => {
+          const suma = pagos
+            .filter((p) => p.categoriaId === cat.id)
+            .reduce((acc, p) => acc + p.monto, 0);
+          const pct = total > 0 ? Math.round((suma / total) * 100) : 0;
+          return { ...cat, suma, pct };
+        });
 
         const sumaSinTipo = pagos
           .filter((p) => !p.categoriaId)
@@ -204,8 +289,8 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
         if (sumaSinTipo > 0) {
           resumen.push({
             id: "SIN_TIPO",
-            nombre: "Sin tipo (pendientes)",
-            icono: "⚠️",
+            nombre: "Sin clasificar",
+            icono: "fa-triangle-exclamation",
             esPasivo: false,
             presupuestoMensual: 0,
             suma: sumaSinTipo,
@@ -213,7 +298,18 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
           });
         }
 
-        listaBarrasReporte.innerHTML = resumen
+        // Todo ordenado por monto: lo que tiene gasto arriba, lo de 0% al final
+        resumen.sort((a, b) => b.suma - a.suma);
+
+        const visibles = reporteExpandido ? resumen : resumen.slice(0, LIMITE_VISIBLE);
+        const ocultas = resumen.length - LIMITE_VISIBLE;
+
+        btnVerMas.classList.toggle("hidden", ocultas <= 0);
+        btnVerMas.classList.toggle("flex", ocultas > 0);
+        textoVerMas.textContent = reporteExpandido ? "Ver menos" : `Ver ${ocultas} más`;
+        iconoVerMas.classList.toggle("rotate-180", reporteExpandido);
+
+        listaBarrasReporte.innerHTML = visibles
           .map((item) => {
             const colorBarra =
               item.id === "SIN_TIPO"
@@ -221,6 +317,7 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
                 : item.pct >= 35
                   ? "bg-rose-500"
                   : "bg-[#3B38D0]";
+            const vacia = item.suma === 0 ? "opacity-60" : "";
             const seleccionado =
               filtroCategoriaId === item.id
                 ? "ring-2 ring-[#3B38D0] rounded-xl p-1.5 bg-[#F7F2E9]"
@@ -230,10 +327,10 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
               <button
                 type="button"
                 data-cat-filtro="${item.id}"
-                class="btn-filtrar-cat block w-full text-left transition ${seleccionado}"
+                class="btn-filtrar-cat block w-full text-left transition ${seleccionado} ${vacia}"
               >
                 <div class="flex items-center justify-between gap-2 text-[11px] font-extrabold">
-                  <span class="min-w-0 truncate">${item.icono} ${esc(item.nombre)}</span>
+                  <span class="min-w-0 truncate"><span class="mr-1 inline-block w-4 text-center">${iconoCat(item)}</span>${esc(item.nombre)}</span>
                   <span class="shrink-0">Bs ${item.suma.toFixed(0)} (${item.pct}%)</span>
                 </div>
                 <div class="mt-1 h-2.5 w-full overflow-hidden rounded-full border-2 border-zinc-900 bg-[#F7F2E9]">
@@ -260,7 +357,7 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
         btnLimpiarFiltro.classList.remove("hidden");
         if (filtroCategoriaId === "SIN_TIPO") {
           pagosFiltrados = pagos.filter((p) => !p.categoriaId);
-          tituloExtractos.textContent = "Extractos: Sin tipo";
+          tituloExtractos.textContent = "Extractos: Sin clasificar";
         } else {
           const cat = categorias.find((c) => c.id === filtroCategoriaId);
           pagosFiltrados = pagos.filter((p) => p.categoriaId === filtroCategoriaId);
@@ -301,7 +398,7 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
           const opcionesSelect = categorias
             .map(
               (c) =>
-                `<option value="${c.id}" ${pago.categoriaId === c.id ? "selected" : ""}>${c.icono} ${esc(c.nombre)}</option>`
+                `<option value="${c.id}" ${pago.categoriaId === c.id ? "selected" : ""}>${esc(c.nombre)}</option>`
             )
             .join("");
 
@@ -312,15 +409,15 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
               <div class="mt-2 flex items-center justify-between gap-2 border-t border-zinc-200 pt-2">
                 ${
                   sinTipo
-                    ? `<span class="shrink-0 rounded-full border border-zinc-900 bg-[#FDE047] px-2 py-0.5 text-[10px] font-black">⚠️ Sin tipo</span>`
-                    : `<span class="min-w-0 truncate rounded-full border border-zinc-900 bg-[#F7F2E9] px-2 py-0.5 text-[10px] font-extrabold">${cat.icono} ${esc(cat.nombre)}</span>`
+                    ? `<span class="shrink-0 rounded-full border border-zinc-900 bg-[#FDE047] px-2 py-0.5 text-[10px] font-black"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Sin clasificar</span>`
+                    : `<span class="min-w-0 truncate rounded-full border border-zinc-900 bg-[#F7F2E9] px-2 py-0.5 text-[10px] font-extrabold"><span class="mr-1">${iconoCat(cat)}</span>${esc(cat.nombre)}</span>`
                 }
 
                 <select
                   data-pago-id="${pago.id}"
                   class="select-reclasificar w-28 shrink-0 rounded-lg border-2 border-zinc-900 bg-[#F7F2E9] px-1.5 py-1 text-[11px] font-bold focus:border-[#3B38D0] focus:outline-none"
                 >
-                  <option value="" ${sinTipo ? "selected" : ""}>Sin tipo</option>
+                  <option value="" ${sinTipo ? "selected" : ""}>Sin clasificar</option>
                   ${opcionesSelect}
                 </select>
               </div>
@@ -349,6 +446,7 @@ import ModalNuevaCategoria from "../../components/pagos/ModalNuevaCategoria.astr
       renderizarTodo();
     });
 
+    // ---- Modal nueva categoría ----
     const modalCat = document.getElementById("modal-nueva-categoria")!;
     const inputCatNombre = document.getElementById("input-cat-nombre") as HTMLInputElement;
     const selectCatIcono = document.getElementById("select-cat-icono") as HTMLSelectElement;

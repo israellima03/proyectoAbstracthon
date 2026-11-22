@@ -1,8 +1,9 @@
 ---
 /**
- * Gráfico 2: cuánto ahorraste cada mes (barras) y cuánto ganaste gracias a la UFV (línea).
- * El SVG lo dibuja ufvs-app.ts porque depende de tus movimientos.
+ * Gráfico: cuánto ahorraste cada mes (barras) y cuánto ganaste gracias a la UFV (línea).
+ * Junta tu cuenta UFV y lo que ahorras en tus metas. El SVG lo dibuja ahorro-app.ts.
  */
+import Icono from "../ui/Icono.astro";
 ---
 
 <section class="tarjeta mt-5 p-4">
@@ -11,12 +12,16 @@
 
   <div class="mt-3 grid grid-cols-2 gap-2">
     <div class="rounded-xl border-2 border-tinta bg-primario-suave p-2.5">
-      <p class="text-[10px] font-bold text-tinta-suave uppercase">Mejor mes 🏆</p>
+      <p class="flex items-center gap-1 text-[10px] font-bold text-tinta-suave uppercase">
+        <Icono nombre="trofeo" class="size-3.5 text-primario" /> Mejor mes
+      </p>
       <p id="ga-mejor-mes" class="text-base leading-tight font-extrabold capitalize">—</p>
       <p id="ga-mejor-monto" class="text-xs font-semibold text-primario">Bs 0</p>
     </div>
     <div class="rounded-xl border-2 border-tinta bg-exito-suave p-2.5">
-      <p class="text-[10px] font-bold text-tinta-suave uppercase">Ganado por UFV</p>
+      <p class="flex items-center gap-1 text-[10px] font-bold text-tinta-suave uppercase">
+        <Icono nombre="ufvs" class="size-3.5 text-exito" /> Ganado por UFV
+      </p>
       <p id="ga-ganancia" class="text-base leading-tight font-extrabold text-exito">+Bs 0</p>
       <p class="text-xs font-semibold text-tinta-suave">sin hacer nada</p>
     </div>
@@ -29,4 +34,5 @@
     <span class="flex items-center gap-1.5"><span class="size-3 rounded-sm border-2 border-tinta bg-accion"></span> Mejor mes</span>
     <span class="flex items-center gap-1.5"><span class="h-1 w-4 rounded-full bg-exito"></span> Dinero ganado (Bs)</span>
   </div>
+  <p class="mt-2 text-[10px] text-tinta-suave">Incluye tu cuenta UFV y lo que ahorras en tus metas.</p>
 </section>

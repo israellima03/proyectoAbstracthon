@@ -2,7 +2,7 @@
 /** Resumen de puntos. El catálogo completo se abre en HojaRecompensas. */
 import Icono from "../ui/Icono.astro";
 import { categoriasPremio, premios, racha } from "../../data/perfil";
-import { miles } from "./formato";
+import { miles } from "../perfil/formato";
 
 const categorias = categoriasPremio.filter((c) => c.id !== "todas");
 const iconoCategoria = { megas: "celular", descuentos: "etiqueta", ufv: "moneda" } as const;
@@ -56,8 +56,8 @@ const iconoCategoria = { megas: "celular", descuentos: "etiqueta", ufv: "moneda"
 
 <script>
   import { premios } from "../../data/perfil";
-  import { alCambiar } from "./estado";
-  import { miles } from "./formato";
+  import { alCambiar } from "../perfil/estado";
+  import { miles } from "../perfil/formato";
 
   const uno = (sel: string) => document.querySelector<HTMLElement>(sel)!;
 

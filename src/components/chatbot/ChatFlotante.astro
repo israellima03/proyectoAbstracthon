@@ -1,5 +1,6 @@
 ---
 import Icono from "../ui/Icono.astro";
+import ChatMetas from "./ChatMetas.astro";
 
 const mascota = "/img/mascota/BILLETE.jpg";
 const nombre = "Cecilio";
@@ -84,47 +85,19 @@ const nombre = "Cecilio";
         </button>
       </header>
 
-      <!-- Mensajes: empieza vacio -->
-      <div
-        id="chat-mensajes"
-        class="flex flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-4 [scrollbar-width:none]"
-        aria-live="polite"
-      >
-      </div>
-
-      <!-- Entrada -->
-      <form id="chat-form" class="flex items-center gap-2 border-t-2 border-tinta bg-superficie p-3">
-        <label for="chat-input" class="sr-only">Escribe tu mensaje</label>
-        <input
-          id="chat-input"
-          type="text"
-          autocomplete="off"
-          placeholder={`Escribe a ${nombre}...`}
-          class="min-w-0 flex-1 rounded-full border-2 border-tinta bg-fondo px-4 py-2.5 text-sm outline-none placeholder:text-tinta-suave focus:bg-superficie focus:ring-2 focus:ring-primario-claro"
-        />
-        <button
-          type="submit"
-          aria-label="Enviar"
-          class="grid size-11 shrink-0 place-items-center rounded-full border-2 border-tinta bg-primario text-white shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-        >
-          <Icono nombre="enviar" class="size-4" />
-        </button>
-      </form>
+      <!-- Mensajes + pie fijo (chips y campo de texto) -->
+      <ChatMetas />
     </section>
   </div>
 </div>
 
 <script>
-  import { obtenerRespuesta } from "../../lib/chatbot";
-  import type { MensajeChat } from "../../types";
-
   const boton = document.getElementById("chat-boton") as HTMLButtonElement;
   const capa = document.getElementById("chat-capa") as HTMLDivElement;
   const fondo = document.getElementById("chat-fondo") as HTMLDivElement;
   const cerrar = document.getElementById("chat-cerrar") as HTMLButtonElement;
-  const form = document.getElementById("chat-form") as HTMLFormElement;
-  const input = document.getElementById("chat-input") as HTMLInputElement;
-  const lista = document.getElementById("chat-mensajes") as HTMLDivElement;
+  const metas = capa.querySelector<HTMLDivElement>("[data-chat-metas]")!;
+  const input = metas.querySelector<HTMLInputElement>("[data-input]")!;
 
   // Burbuja de aviso: aparece cada 10 s y se queda visible 3 s
   const aviso = document.getElementById("chat-aviso") as HTMLButtonElement;
@@ -153,34 +126,12 @@ const nombre = "Cecilio";
     }
     capa.hidden = !abierto;
     boton.setAttribute("aria-expanded", String(abierto));
-    if (abierto) input.focus();
-    else boton.focus();
+    if (abierto) {
+      // Se avisa con la capa ya visible: oculta no tiene altura y no se podria bajar el scroll
+      metas.dispatchEvent(new CustomEvent("chat:abrir"));
+      input.focus();
+    } else boton.focus();
   }
-
-  function agregarMensaje({ autor, texto }: MensajeChat): HTMLParagraphElement {
-    const burbuja = document.createElement("p");
-    burbuja.className =
-      autor === "usuario"
-        ? "max-w-[85%] self-end rounded-2xl rounded-tr-sm border-2 border-tinta bg-primario px-3 py-2 text-sm text-white shadow-duro-sm"
-        : "max-w-[85%] self-start rounded-2xl rounded-tl-sm border-2 border-tinta bg-superficie px-3 py-2 text-sm shadow-duro-sm";
-    burbuja.textContent = texto;
-    lista.appendChild(burbuja);
-    lista.scrollTop = lista.scrollHeight;
-    return burbuja;
-  }
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const texto = input.value.trim();
-    if (!texto) return;
-    agregarMensaje({ autor: "usuario", texto });
-    input.value = "";
-    const escribiendo = agregarMensaje({ autor: "bot", texto: "Escribiendo..." });
-    escribiendo.classList.add("italic", "text-tinta-suave");
-    const respuesta = await obtenerRespuesta(texto);
-    escribiendo.remove();
-    agregarMensaje({ autor: "bot", texto: respuesta });
-  });
 
   boton.addEventListener("click", () => abrir(true));
   cerrar.addEventListener("click", () => abrir(false));

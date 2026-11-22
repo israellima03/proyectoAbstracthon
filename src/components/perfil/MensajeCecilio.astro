@@ -1,127 +1,139 @@
 ---
 /**
- * Cecilio comenta tu racha y tu ahorro en UFV, y abre su chat (ChatFlotante + lib/chatbot.ts).
- * El mensaje se arma en el navegador con la racha guardada y el saldo de la pestaña UFVs.
+ * Cecilio resume cómo va tu situación, con datos de todas las pestañas:
+ * racha (lib/racha), pagos del mes (lib/pagosStore), ahorro en UFV (lib/cuenta-ufv)
+ * y el plan mensual de Inicio. Solo informa; el chat vive en ChatFlotante.
  */
 import Icono from "../ui/Icono.astro";
 
-const preguntas = ["¿Cómo recupero mi racha?", "¿Cómo canjeo mis puntos?", "¿Qué es la UFV?"];
+const fila =
+  "flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-fondo active:bg-fondo";
+const caja = "grid size-8 shrink-0 place-items-center rounded-lg border-2 border-tinta";
 ---
 
 <section class="tarjeta overflow-hidden" aria-labelledby="cecilio-titulo">
-  <!-- Cabecera tipo chat -->
-  <header class="flex items-center gap-3 border-b-2 border-tinta bg-primario px-4 py-3 text-white">
-    <div class="relative shrink-0">
-      <span class="block size-12 overflow-hidden rounded-full border-2 border-tinta bg-primario">
-        <img
-          src="/img/mascota/BILLETE.jpg"
-          alt="Cecilio, la mascota"
-          width="48"
-          height="48"
-          class="size-full scale-150 object-cover"
-        />
-      </span>
-      <span class="absolute right-0 bottom-0 size-3.5 rounded-full border-2 border-tinta bg-exito" aria-hidden="true"
-      ></span>
-    </div>
-    <div class="min-w-0 flex-1">
-      <h2 id="cecilio-titulo" class="leading-tight font-extrabold">Cecilio</h2>
-      <p class="text-xs text-white/80">Tu asesor de ahorro · en línea</p>
-    </div>
-    <span data-cecilio-chip class="chip shrink-0 border-tinta bg-alerta-suave text-[10px] text-tinta uppercase">
-      Tu racha
+  <!-- Cecilio y su mensaje -->
+  <div class="flex gap-3 p-4">
+    <span class="block size-14 shrink-0 overflow-hidden rounded-full border-2 border-tinta bg-primario">
+      <img
+        src="/img/mascota/BILLETE.jpg"
+        alt="Cecilio, la mascota"
+        width="56"
+        height="56"
+        class="size-full scale-150 object-cover"
+      />
     </span>
-  </header>
-
-  <div class="p-4">
-    <!-- Burbuja de mensaje -->
-    <div class="relative rounded-2xl rounded-tl-sm border-2 border-tinta bg-fondo px-3 py-2.5 text-sm leading-snug">
-      <p data-cecilio-titulo class="font-extrabold">Hola, Mateo</p>
-      <p data-cecilio-texto class="mt-0.5">Estoy revisando tu racha…</p>
+    <div class="min-w-0 flex-1">
+      <div class="flex items-center justify-between gap-2">
+        <p class="text-[11px] font-bold tracking-wide text-tinta-suave uppercase">Cecilio dice</p>
+        <span data-cecilio-chip class="chip shrink-0 bg-alerta-suave text-[10px] uppercase">Revisando</span>
+      </div>
+      <div class="relative mt-1.5 rounded-2xl rounded-tl-sm border-2 border-tinta bg-primario-suave px-3 py-2.5 text-sm leading-snug">
+        <p id="cecilio-titulo" data-cecilio-titulo class="font-extrabold">Revisando tu mes…</p>
+        <p data-cecilio-texto class="mt-0.5"></p>
+      </div>
     </div>
-
-    <!-- Dato de su ahorro en UFV -->
-    <a
-      href="/ufvs"
-      class="mt-2 flex items-center gap-2 rounded-xl border-2 border-tinta bg-primario-suave px-3 py-2 text-xs"
-    >
-      <Icono nombre="ufvs" class="size-4 shrink-0 text-primario" />
-      <span class="flex-1">
-        Tus <b data-cecilio-ufv>0</b> UFV valen hoy <b data-cecilio-bs>Bs 0</b> y siguen el ritmo de la inflación.
-      </span>
-      <Icono nombre="flecha" class="size-3.5 shrink-0" />
-    </a>
-
-    <!-- Preguntas rápidas: se envían al chat de Cecilio -->
-    <p class="mt-4 text-[11px] font-bold tracking-wide text-tinta-suave uppercase">Pregúntale a Cecilio</p>
-    <div class="mt-2 flex flex-wrap gap-2">
-      {
-        preguntas.map((p) => (
-          <button
-            type="button"
-            data-preguntar={p}
-            class="chip bg-superficie py-1 shadow-duro-sm active:translate-x-px active:translate-y-px active:shadow-none"
-          >
-            {p}
-          </button>
-        ))
-      }
-    </div>
-
-    <button
-      type="button"
-      data-abrir-chat
-      class="mt-3 flex w-full items-center justify-center gap-2 rounded-[0.875rem] border-2 border-tinta bg-superficie py-2.5 text-sm font-bold shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-    >
-      <Icono nombre="chat" class="size-4" /> Escribirle a Cecilio
-    </button>
   </div>
+
+  <!-- Resumen de la situación -->
+  <ul class="divide-y-2 divide-linea border-t-2 border-tinta">
+    <li>
+      <a href="/racha" class={fila}>
+        <span class:list={[caja, "bg-alerta-suave text-accion"]}><Icono nombre="llama" class="size-4" /></span>
+        <span class="flex-1 font-semibold">Racha</span>
+        <span data-sit-racha class="text-right text-xs font-bold">—</span>
+      </a>
+    </li>
+    <li>
+      <a href="/pagos" class={fila}>
+        <span class:list={[caja, "bg-peligro-suave text-peligro"]}><Icono nombre="pagos" class="size-4" /></span>
+        <span class="flex-1 font-semibold">Gastos del mes</span>
+        <span data-sit-pagos class="text-right text-xs font-bold">—</span>
+      </a>
+    </li>
+    <li>
+      <a href="/ufvs" class={fila}>
+        <span class:list={[caja, "bg-primario-suave text-primario"]}><Icono nombre="ufvs" class="size-4" /></span>
+        <span class="flex-1 font-semibold">Ahorro en UFV</span>
+        <span data-sit-ufv class="text-right text-xs font-bold">—</span>
+      </a>
+    </li>
+    <li>
+      <a href="/" class={fila}>
+        <span class:list={[caja, "bg-exito-suave text-exito"]}><Icono nombre="sueldo" class="size-4" /></span>
+        <span class="flex-1 font-semibold">Plan del mes</span>
+        <span data-sit-plan class="text-right text-xs font-bold">—</span>
+      </a>
+    </li>
+  </ul>
 </section>
 
 <script>
   import { usuario } from "../../data/perfil";
-  import { siguienteHito } from "../../lib/racha";
   import { cargarCuenta } from "../../lib/cuenta-ufv";
+  import { getPagos } from "../../lib/pagosStore";
+  import { siguienteHito } from "../../lib/racha";
   import { formatoBs, formatoUfv, ufvABs } from "../../lib/ufv";
   import { alCambiar } from "./estado";
-  import { abrirChatCecilio, preguntarACecilio } from "./navegador";
+  import { leer } from "./navegador";
 
   const uno = (sel: string) => document.querySelector<HTMLElement>(sel)!;
+  const nombre = usuario.nombreCorto;
 
-  // Saldo en UFV (pestaña UFVs)
-  const saldo = cargarCuenta().saldoUfv;
-  uno("[data-cecilio-ufv]").textContent = formatoUfv(saldo);
-  uno("[data-cecilio-bs]").textContent = formatoBs(Math.round(ufvABs(saldo)));
+  // Datos de las otras pestañas
+  const mes = new Date().toISOString().slice(0, 7);
+  const pagosMes = getPagos().filter((p) => p.fecha.startsWith(mes));
+  const gastoMes = pagosMes.reduce((t, p) => t + p.monto, 0);
+  const sinTipo = pagosMes.filter((p) => !p.categoriaId).length;
+  const saldoUfv = cargarCuenta().saldoUfv;
+  const plan = leer<{ libresVariables: number; ahorroMeta: number } | null>("ufv_plan_mensual", null);
 
-  // Mensaje según la racha
+  uno("[data-sit-pagos]").textContent =
+    `${formatoBs(Math.round(gastoMes))}` + (sinTipo ? ` · ${sinTipo} sin tipo` : "");
+  uno("[data-sit-pagos]").classList.toggle("text-peligro", sinTipo > 0);
+  uno("[data-sit-ufv]").textContent = `${formatoUfv(saldoUfv)} UFV ≈ ${formatoBs(Math.round(ufvABs(saldoUfv)))}`;
+  uno("[data-sit-plan]").textContent = plan ? `${formatoBs(plan.libresVariables)} libres` : "Sin plan";
+  uno("[data-sit-plan]").classList.toggle("text-peligro", !plan);
+
   alCambiar((e) => {
-    const nombre = usuario.nombreCorto;
-    const chip = uno("[data-cecilio-chip]");
+    uno("[data-sit-racha]").textContent =
+      `${e.dias} días · ` + (!e.ayerCumplido ? "en riesgo" : e.hoyCumplido ? "al día" : "falta hoy");
+    uno("[data-sit-racha]").classList.toggle("text-peligro", !e.ayerCumplido);
+
+    // Lo más urgente primero
     let titulo: string;
     let texto: string;
+    let estadoChip: "riesgo" | "atento" | "bien";
 
     if (!e.ayerCumplido) {
+      estadoChip = "riesgo";
       titulo = `${nombre}, tu racha está en riesgo`;
-      texto = `Ayer no ahorraste. Si compras UFV hoy cubres lo de ayer y lo de hoy, y salvas tus ${e.dias} días.`;
-      chip.textContent = "En riesgo";
+      texto = `Ayer no ahorraste. Compra UFV hoy para cubrir lo de ayer y lo de hoy, y salva tus ${e.dias} días.`;
     } else if (!e.hoyCumplido) {
-      titulo = `Vas bien, ${nombre}`;
-      texto = `Llevas ${e.dias} días seguidos. Te falta el ahorro de hoy: Bs ${e.montoDiario} o 1 UFV.`;
-      chip.textContent = "Falta hoy";
+      estadoChip = "atento";
+      titulo = `Te falta el ahorro de hoy`;
+      texto = `Llevas ${e.dias} días seguidos. Ahorra Bs ${e.montoDiario} o compra 1 UFV para no cortar la racha.`;
+    } else if (!plan) {
+      estadoChip = "atento";
+      titulo = `Arma tu plan del mes`;
+      texto = `Tu racha está al día. Con tu plan en Inicio sabrás cuánto ahorrar cada día sin apretar tu mes.`;
+    } else if (sinTipo > 0) {
+      estadoChip = "atento";
+      titulo = `Tienes ${sinTipo} ${sinTipo === 1 ? "pago" : "pagos"} sin tipo`;
+      texto = `Clasifícalos en Pagos para que tu reporte del mes sea exacto. Tu racha ya está al día.`;
     } else {
+      estadoChip = "bien";
       const hito = siguienteHito(e.dias);
-      titulo = `Racha al día, ${nombre}`;
-      texto = `Ya ahorraste hoy y llevas ${e.dias} días. En ${hito.faltan} días más ganas el bonus de +${hito.puntos} pts.`;
-      chip.textContent = `${e.dias} días`;
+      titulo = `Vas muy bien, ${nombre}`;
+      texto = `Racha al día, pagos ordenados y plan activo. En ${hito.faltan} días ganas el bonus de +${hito.puntos} pts.`;
     }
-    chip.classList.toggle("bg-alerta-suave", !e.ayerCumplido || !e.hoyCumplido);
-    chip.classList.toggle("bg-exito-suave", e.ayerCumplido && e.hoyCumplido);
+
     uno("[data-cecilio-titulo]").textContent = titulo;
     uno("[data-cecilio-texto]").textContent = texto;
+    const chip = uno("[data-cecilio-chip]");
+    chip.textContent = { riesgo: "En riesgo", atento: "Atento", bien: "Todo bien" }[estadoChip];
+    chip.classList.toggle("bg-peligro-suave", estadoChip === "riesgo");
+    chip.classList.toggle("bg-alerta-suave", estadoChip === "atento");
+    chip.classList.toggle("bg-exito-suave", estadoChip === "bien");
   });
-
-  document.querySelectorAll<HTMLButtonElement>("[data-preguntar]").forEach((b) =>
-    b.addEventListener("click", () => preguntarACecilio(b.dataset.preguntar!)),
-  );
-  uno("[data-abrir-chat]").addEventListener("click", abrirChatCecilio);
 </script>
