@@ -1,0 +1,41 @@
+---
+/**
+ * Barra superior de TuBille: se muestra en todos los módulos (está en AppLayout).
+ * Logo + nombre a la izquierda; acceso al perfil a la derecha.
+ */
+import { usuario } from "../../data/perfil";
+
+const inicial = usuario.nombreCorto.charAt(0).toUpperCase();
+const enPerfil = Astro.url.pathname.startsWith("/perfil");
+---
+
+<header class="relative z-30 flex shrink-0 items-center justify-between gap-2 border-b-2 border-tinta bg-superficie px-4 py-2.5">
+  <!-- Logo + nombre -->
+  <a href="/" class="flex min-w-0 items-center gap-2" aria-label="TuBille, ir al inicio">
+    <img
+      src="/img/mascota/BILLETE.jpg"
+      alt=""
+      width="36"
+      height="36"
+      class="size-9 shrink-0 rounded-xl border-2 border-tinta object-cover shadow-duro-sm"
+    />
+    <span class="text-xl leading-none font-extrabold tracking-tight">
+      Tu<span class="text-primario">Bille</span>
+    </span>
+  </a>
+
+  <div class="flex shrink-0 items-center gap-2">
+    <!-- Perfil -->
+    <a
+      href="/perfil"
+      aria-label="Ir a mi perfil"
+      aria-current={enPerfil ? "page" : undefined}
+      class:list={[
+        "grid size-9 place-items-center rounded-full border-2 border-tinta text-sm font-extrabold shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
+        enPerfil ? "bg-primario text-white" : "bg-primario-suave text-primario",
+      ]}
+    >
+      {inicial}
+    </a>
+  </div>
+</header>
