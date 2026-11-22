@@ -5,6 +5,7 @@
  */
 import { premios, racha } from "../../data/perfil";
 import { cargarRacha, completarReto, guardarRacha, type EstadoRacha } from "../../lib/racha";
+import { getPagos } from "../../lib/pagosStore";
 
 export interface EstadoPerfil extends EstadoRacha {
   /** Bs por día que pide la racha (sale del plan de Inicio si existe). */
@@ -29,6 +30,13 @@ export const estado: EstadoPerfil = {
   montoDiario: plan?.ahorroMeta ? Math.max(1, Math.round(plan.ahorroMeta / 30)) : racha.montoDiario,
 };
 if (plan) completarReto(estado, "plan-mes", false);
+
+/** Pagos del mes que siguen "Sin tipo" en la pestaña Pagos. */
+const mesActual = new Date().toISOString().slice(0, 7);
+export const pagosSinTipo = getPagos().filter((p) => p.fecha.startsWith(mesActual) && !p.categoriaId).length;
+
+// Con todos los pagos clasificados, el reto se completa (y sus puntos quedan guardados)
+if (pagosSinTipo === 0 && completarReto(estado, "clasificar-pagos")) guardarRacha(estado);
 
 type Oyente = (e: EstadoPerfil) => void;
 const oyentes = new Set<Oyente>();

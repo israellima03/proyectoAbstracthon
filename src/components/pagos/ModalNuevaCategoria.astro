@@ -1,7 +1,3 @@
----
-import Icono from "../ui/Icono.astro";
----
-
 <div
   id="modal-nueva-categoria"
   class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-3 backdrop-blur-xs"
@@ -17,7 +13,7 @@ import Icono from "../ui/Icono.astro";
         aria-label="Cerrar"
         class="shrink-0 rounded-lg border-2 border-zinc-900 bg-white px-2 text-sm font-bold leading-6"
       >
-        <Icono nombre="cerrar" class="size-4" trazo={2.5} />
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
     </div>
 
@@ -44,12 +40,12 @@ import Icono from "../ui/Icono.astro";
             id="select-cat-icono"
             class="w-full rounded-xl border-2 border-zinc-900 bg-white px-2 py-1.5 text-xs font-bold"
           >
-            <option value="etiqueta">General</option>
-            <option value="mascota">Mascotas</option>
-            <option value="wifi">Internet</option>
-            <option value="salud">Salud</option>
-            <option value="juego">Juegos</option>
-            <option value="inicio">Hogar</option>
+            <option value="fa-tag">General</option>
+            <option value="fa-paw">Mascotas</option>
+            <option value="fa-wifi">Internet / Datos</option>
+            <option value="fa-heart-pulse">Salud</option>
+            <option value="fa-gamepad">Juegos</option>
+            <option value="fa-house">Hogar / Alquiler</option>
           </select>
         </div>
 

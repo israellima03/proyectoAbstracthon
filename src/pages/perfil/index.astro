@@ -17,24 +17,6 @@ import HojaRecompensas from "../../components/perfil/HojaRecompensas.astro";
     <Preferencias />
   </div>
 
-  <button
-    id="reiniciar-demo"
-    type="button"
-    class="mx-auto mt-6 block text-xs font-semibold text-tinta-suave underline underline-offset-4"
-  >
-    Reiniciar demo
-  </button>
-
   <!-- Ventana flotante de recompensas -->
   <HojaRecompensas />
 </AppLayout>
-
-<script>
-  import { reiniciarRacha } from "../../lib/racha";
-
-  // Vuelve la racha al estado inicial (12 días, en riesgo)
-  document.getElementById("reiniciar-demo")?.addEventListener("click", () => {
-    reiniciarRacha();
-    location.reload();
-  });
-</script>

@@ -11,6 +11,7 @@ import {
   subcuentasIniciales,
 } from "../../data/ahorro";
 import { mostrarAviso } from "../../lib/aviso";
+import { registrarAhorroSubcuenta } from "../../lib/racha";
 import { cargarCuenta } from "../../lib/cuenta-ufv";
 import { RECORDATORIO_RETIROS } from "../../lib/retiros";
 import { bsAUfv, formatoBs, formatoUfv, ufvABs } from "../../lib/ufv";
@@ -226,7 +227,13 @@ export function iniciarAhorro() {
     estado.ingreso = null;
     estado.porcentaje = PORCENTAJE_SUGERIDO;
     render();
-    mostrarAviso(RECORDATORIO_RETIROS, {
+
+    // Ahorrar en una subcuenta cuenta como el ahorro del día de la racha (ver src/lib/racha.ts)
+    const racha = registrarAhorroSubcuenta(montoUfv);
+    const textoRacha = racha
+      ? `${racha.recupera ? "Recuperaste tu racha" : "Racha al día"}: ${racha.dias} días · +${racha.puntos} pts. `
+      : "";
+    mostrarAviso(textoRacha + RECORDATORIO_RETIROS, {
       tipo: "exito",
       icono: estaLista(destino) ? "trofeo" : "ahorro",
       titulo: estaLista(destino)
