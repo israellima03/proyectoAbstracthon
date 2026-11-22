@@ -78,7 +78,7 @@ function pintarUfv() {
   $("inicio-ufv-saldo")!.textContent = `${formatoUfv(saldoUfv)} UFV`;
   $("inicio-ufv-bs")!.textContent = `≈ ${bs2(ufvABs(saldoUfv))}`;
   $("inicio-ufv-valor")!.textContent = `1 UFV = Bs ${formatoCotizacion(VALOR_UFV)} hoy`;
-  $("inicio-ufv-subida")!.textContent = `↑ +${subida.toFixed(2).replace(".", ",")}%`;
+  $("inicio-ufv-subida")!.textContent = `+${subida.toFixed(2).replace(".", ",")}%`;
 }
 
 export function iniciarDatosInicio() {

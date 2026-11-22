@@ -173,7 +173,7 @@ const respuestas: { claves: string[]; texto: string }[] = [
   {
     claves: ["hormiga", "gustito", "cafe", "café"],
     texto:
-      "Los gastos hormiga son pequeños pero suman mucho. Pon un tope semanal a tu bolsillo de Gustitos y revisa cada domingo cuánto llevas 🐜",
+      "Los gastos hormiga son pequeños pero suman mucho. Pon un tope semanal a tu bolsillo de Gustitos y revisa cada domingo cuánto llevas.",
   },
   {
     claves: ["consejo", "tip", "ayuda"],

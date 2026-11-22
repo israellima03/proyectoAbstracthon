@@ -1,6 +1,7 @@
 export interface CategoriaPago {
   id: string;
   nombre: string;
+  /** Ícono: clase de Font Awesome (ej. "fa-tag"). Las categorías por defecto usan ICONOS_DEFAULT de pages/pagos. */
   icono: string;
   esPasivo: boolean;
   presupuestoMensual: number;
@@ -32,12 +33,12 @@ const KEYS = {
 };
 
 export const CATEGORIAS_DEFAULT: CategoriaPago[] = [
-  { id: 'comida', nombre: 'Comida y merienda', icono: '🍽️', esPasivo: false, presupuestoMensual: 1200 },
-  { id: 'servicios', nombre: 'Servicios (Luz/Agua/Gas)', icono: '💡', esPasivo: true, presupuestoMensual: 400 },
-  { id: 'suscripciones', nombre: 'Suscripciones y pasivos', icono: '🔄', esPasivo: true, presupuestoMensual: 250 },
-  { id: 'estudios', nombre: 'Estudios y libros', icono: '📚', esPasivo: false, presupuestoMensual: 500 },
-  { id: 'transporte', nombre: 'Transporte', icono: '🚌', esPasivo: false, presupuestoMensual: 450 },
-  { id: 'gustitos', nombre: 'Ropa y gustitos', icono: '🛍️', esPasivo: false, presupuestoMensual: 300 },
+  { id: 'comida', nombre: 'Comida y merienda', icono: 'comida', esPasivo: false, presupuestoMensual: 1200 },
+  { id: 'servicios', nombre: 'Servicios (Luz/Agua/Gas)', icono: 'luz', esPasivo: true, presupuestoMensual: 400 },
+  { id: 'suscripciones', nombre: 'Suscripciones y pasivos', icono: 'repetir', esPasivo: true, presupuestoMensual: 250 },
+  { id: 'estudios', nombre: 'Estudios y libros', icono: 'libro', esPasivo: false, presupuestoMensual: 500 },
+  { id: 'transporte', nombre: 'Transporte', icono: 'bus', esPasivo: false, presupuestoMensual: 450 },
+  { id: 'gustitos', nombre: 'Ropa y gustitos', icono: 'bolsa', esPasivo: false, presupuestoMensual: 300 },
 ];
 
 const PAGOS_INICIALES: PagoItem[] = [
@@ -141,7 +142,7 @@ export function agregarCategoria(nombre: string, icono: string, esPasivo: boolea
   const nueva: CategoriaPago = {
     id: 'cat-' + Date.now(),
     nombre: nombre.trim(),
-    icono: icono || '📌',
+    icono: icono || 'fa-tag',
     esPasivo,
     presupuestoMensual: presupuestoMensual > 0 ? presupuestoMensual : 500,
   };

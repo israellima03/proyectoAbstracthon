@@ -1,0 +1,25 @@
+---
+/**
+ * Anuncio: los retiros se hacen solo en la entidad bancaria (no desde la app).
+ */
+import Icono from "./Icono.astro";
+import { MAX_RETIROS_MES, TEXTO_RETIRO_BANCO, TITULO_RETIRO_BANCO } from "../../lib/retiros";
+
+interface Props {
+  class?: string;
+}
+const { class: clase = "" } = Astro.props;
+---
+
+<aside class:list={["flex gap-3 rounded-2xl border-2 border-tinta bg-alerta-suave p-3", clase]}>
+  <span class="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-superficie">
+    <Icono nombre="banco" class="size-5" />
+  </span>
+  <div class="text-xs leading-relaxed">
+    <p class="text-sm font-extrabold">{TITULO_RETIRO_BANCO}</p>
+    <p>{TEXTO_RETIRO_BANCO}</p>
+    <p class="mt-1 flex items-center gap-1 font-bold">
+      <Icono nombre="info" class="size-3.5" /> Máximo {MAX_RETIROS_MES} retiros al mes.
+    </p>
+  </div>
+</aside>
