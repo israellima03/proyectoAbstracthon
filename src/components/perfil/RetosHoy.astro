@@ -26,7 +26,7 @@ const boton =
               +{r.puntos} pts
               <span class="hidden group-data-[listo=true]:inline">&nbsp;ganados</span>
               {r.detalle && (
-                <span class="font-medium text-tinta-suave group-data-[listo=true]:hidden">&nbsp;· {r.detalle}</span>
+                <span data-reto-detalle class="font-medium text-tinta-suave group-data-[listo=true]:hidden">&nbsp;· {r.detalle}</span>
               )}
             </p>
           </div>
@@ -41,9 +41,16 @@ const boton =
 </div>
 
 <script>
-  import { alCambiar } from "./estado";
+  import { alCambiar, pagosSinTipo } from "./estado";
 
   const items = document.querySelectorAll<HTMLElement>("[data-reto]");
+
+  // Cuántos pagos faltan clasificar (dato de la pestaña Pagos)
+  const detallePagos = document.querySelector('[data-reto="clasificar-pagos"] [data-reto-detalle]');
+  if (detallePagos && pagosSinTipo > 0) {
+    detallePagos.textContent = ` · ${pagosSinTipo} ${pagosSinTipo === 1 ? "pendiente" : "pendientes"} en Pagos`;
+  }
+
   alCambiar((e) => {
     items.forEach((el) => (el.dataset.listo = String(e.retosListos.includes(el.dataset.reto!))));
   });

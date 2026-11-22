@@ -10,6 +10,7 @@ import {
   subcuentasIniciales,
 } from "../../data/ahorro";
 import { mostrarAviso } from "../../lib/aviso";
+import { registrarAhorroSubcuenta } from "../../lib/racha";
 import {
   MAX_RETIROS_MES,
   RECORDATORIO_RETIROS,
@@ -246,7 +247,13 @@ export function iniciarAhorro() {
     estado.ingreso = null;
     estado.porcentaje = PORCENTAJE_SUGERIDO;
     render();
-    mostrarAviso(RECORDATORIO_RETIROS, {
+
+    // Ahorrar en una subcuenta cuenta como el ahorro del día de la racha (ver src/lib/racha.ts)
+    const racha = registrarAhorroSubcuenta(montoUfv);
+    const textoRacha = racha
+      ? `${racha.recupera ? "Recuperaste tu racha" : "Racha al día"}: ${racha.dias} días · +${racha.puntos} pts. `
+      : "";
+    mostrarAviso(textoRacha + RECORDATORIO_RETIROS, {
       tipo: "exito",
       titulo: estaLista(destino)
         ? `¡${destino.nombre} llegó al 100%! 🎉`
