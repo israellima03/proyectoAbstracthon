@@ -17,7 +17,7 @@ const caja = "grid size-9 place-items-center rounded-xl border-2 border-tinta";
 ---
 
 <section class="grid grid-cols-3 gap-3" aria-label="Resumen">
-  <a href="#racha" class={base}>
+  <a href="/racha" class={base}>
     <span class:list={[caja, "bg-alerta-suave text-accion"]}>
       <Icono nombre="llama" class="size-5" />
     </span>
@@ -60,6 +60,15 @@ const caja = "grid size-9 place-items-center rounded-xl border-2 border-tinta";
   import { cargarCuenta } from "../../lib/cuenta-ufv";
   import { formatoBs, formatoUfv, ufvABs } from "../../lib/ufv";
   import { leer } from "./navegador";
+  import { alCambiar } from "./estado";
+
+  // Racha guardada (src/lib/racha.ts)
+  alCambiar((e) => {
+    document.querySelectorAll("[data-racha-dias]").forEach((el) => (el.textContent = String(e.dias)));
+    document.querySelector("[data-racha-estado-corto]")!.textContent = !e.ayerCumplido
+      ? "Racha en riesgo"
+      : "Racha activa";
+  });
 
   // Saldo de la cuenta en UFV (pestaña UFVs)
   const cuenta = cargarCuenta();

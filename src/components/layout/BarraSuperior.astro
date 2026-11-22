@@ -1,12 +1,13 @@
 ---
 /**
  * Barra superior de TuBille: se muestra en todos los módulos (está en AppLayout).
- * Logo + nombre a la izquierda; acceso al perfil a la derecha.
+ * Logo + nombre a la izquierda; botón de la racha a la derecha (abre /racha).
+ * El perfil se abre desde la barra inferior.
  */
-import { usuario } from "../../data/perfil";
+import Icono from "../ui/Icono.astro";
+import { racha } from "../../data/perfil";
 
-const inicial = usuario.nombreCorto.charAt(0).toUpperCase();
-const enPerfil = Astro.url.pathname.startsWith("/perfil");
+const enRacha = Astro.url.pathname.startsWith("/racha");
 ---
 
 <header class="relative z-30 flex shrink-0 items-center justify-between gap-2 border-b-2 border-tinta bg-superficie px-4 py-2.5">
@@ -25,17 +26,48 @@ const enPerfil = Astro.url.pathname.startsWith("/perfil");
   </a>
 
   <div class="flex shrink-0 items-center gap-2">
-    <!-- Perfil -->
+    <!-- Racha -->
     <a
-      href="/perfil"
-      aria-label="Ir a mi perfil"
-      aria-current={enPerfil ? "page" : undefined}
+      href="/racha"
+      id="boton-racha"
+      aria-current={enRacha ? "page" : undefined}
+      aria-label={`Tu racha: ${racha.dias} días`}
       class:list={[
-        "grid size-9 place-items-center rounded-full border-2 border-tinta text-sm font-extrabold shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
-        enPerfil ? "bg-primario text-white" : "bg-primario-suave text-primario",
+        "relative flex h-9 items-center gap-1 rounded-full border-2 border-tinta pr-3 pl-1 text-sm font-extrabold shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
+        enRacha ? "bg-accion text-white" : "bg-alerta-suave text-tinta",
       ]}
     >
-      {inicial}
+      <span
+        class:list={[
+          "grid size-6 place-items-center rounded-full",
+          enRacha ? "bg-white/20" : "bg-accion text-white",
+        ]}
+      >
+        <Icono nombre="llama" class="size-3.5" trazo={2.5} />
+      </span>
+      <span data-racha-dias>{racha.dias}</span>
+      <!-- Punto rojo cuando la racha está en riesgo -->
+      <span
+        data-racha-riesgo
+        hidden={racha.ayerCumplido}
+        class="absolute -top-1 -right-1 size-3.5 rounded-full border-2 border-tinta bg-peligro"
+        aria-hidden="true"></span>
     </a>
   </div>
 </header>
+
+<script>
+  import { cargarRacha } from "../../lib/racha";
+
+  // Días y estado guardados (las compras de UFV y el ahorro de cada día los actualizan)
+  const { dias, ayerCumplido } = cargarRacha();
+  const boton = document.getElementById("boton-racha");
+  if (boton) {
+    boton.querySelector("[data-racha-dias]")!.textContent = String(dias);
+    boton.querySelector<HTMLElement>("[data-racha-riesgo]")!.hidden = ayerCumplido;
+    boton.setAttribute(
+      "aria-label",
+      `Tu racha: ${dias} días${ayerCumplido ? "" : ", en riesgo"}`,
+    );
+  }
+</script>

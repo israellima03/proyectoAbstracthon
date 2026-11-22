@@ -3,20 +3,13 @@ import AppLayout from "../../layouts/AppLayout.astro";
 import EncabezadoPerfil from "../../components/perfil/EncabezadoPerfil.astro";
 import Estadisticas from "../../components/perfil/Estadisticas.astro";
 import MensajeCecilio from "../../components/perfil/MensajeCecilio.astro";
-import SeccionRacha from "../../components/perfil/SeccionRacha.astro";
-import Preferencias from "../../components/perfil/Preferencias.astro";
-import HojaRecompensas from "../../components/perfil/HojaRecompensas.astro";
 ---
 
+<!-- La racha tiene su propia pantalla (/racha), a la que se entra desde la barra superior -->
 <AppLayout titulo="Perfil">
   <div class="flex flex-col gap-5">
     <EncabezadoPerfil />
     <Estadisticas />
     <MensajeCecilio />
-    <SeccionRacha />
-    <Preferencias />
   </div>
-
-  <!-- Ventana flotante de recompensas -->
-  <HojaRecompensas />
 </AppLayout>
