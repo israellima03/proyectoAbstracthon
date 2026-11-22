@@ -1,0 +1,171 @@
+---
+/**
+ * Conversacion de metas de ahorro (vista simulada, sin API).
+ * Zona de mensajes con scroll propio + pie fijo con chips y campo de texto.
+ * Debe ir dentro de un contenedor flex-col con altura definida (el panel del chat).
+ */
+import Icono from "../ui/Icono.astro";
+import { menuChatbot } from "../../lib/chatbot";
+
+const claseGrupo = "flex flex-wrap gap-1.5";
+const claseChip =
+  "chip max-w-full border-2 border-tinta py-1 text-left active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50";
+
+// Mismas clases para las burbujas iniciales y para las que agrega el script
+const burbuja = {
+  usuario:
+    "max-w-[85%] self-end rounded-2xl rounded-tr-sm border-2 border-tinta bg-primario px-3 py-2 text-sm text-white shadow-duro-sm",
+  bot: "max-w-[85%] self-start rounded-2xl rounded-tl-sm border-2 border-tinta bg-superficie px-3 py-2 text-sm shadow-duro-sm",
+};
+---
+
+<div data-chat-metas class="flex min-h-0 flex-1 flex-col">
+  <!-- Mensajes: unica zona con scroll -->
+  <div
+    data-mensajes
+    class="flex flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-4 [scrollbar-width:none]"
+    aria-live="polite"
+  >
+
+  </div>
+
+  <!-- Pie fijo: chips + campo de texto -->
+  <div class="flex shrink-0 flex-col gap-2 border-t-2 border-tinta bg-superficie p-3">
+    <!-- Menu de dos niveles: se ve un solo grupo a la vez -->
+    <div data-grupo="principal" class={claseGrupo}>
+      {
+        menuChatbot.map((tema, i) => (
+          <button
+            type="button"
+            data-respuesta={tema.respuesta}
+            data-destino={i}
+            class:list={[claseChip, "bg-superficie"]}
+          >
+            {tema.pregunta}
+          </button>
+        ))
+      }
+    </div>
+    {
+      menuChatbot.map((tema, i) => (
+        <div data-grupo={i} hidden class={claseGrupo}>
+          {tema.sub.map(({ pregunta, respuesta }) => (
+            <button
+              type="button"
+              data-respuesta={respuesta}
+              data-destino={i}
+              class:list={[claseChip, "bg-superficie"]}
+            >
+              {pregunta}
+            </button>
+          ))}
+          <button type="button" data-destino="principal" class:list={[claseChip, "bg-primario-suave"]}>
+            Menú principal
+          </button>
+        </div>
+      ))
+    }
+
+    <form data-form class="flex items-center gap-2">
+      <label class="flex-1">
+        <span class="sr-only">Escribe tu objetivo de ahorro</span>
+        <input
+          data-input
+          type="text"
+          autocomplete="off"
+          enterkeyhint="send"
+          placeholder="Escribe tu objetivo de ahorro..."
+          class="w-full min-w-0 rounded-full border-2 border-tinta bg-superficie px-4 py-2.5 text-sm outline-none placeholder:text-tinta-suave focus:ring-2 focus:ring-primario-claro"
+        />
+      </label>
+      <button
+        type="submit"
+        aria-label="Enviar"
+        class="grid size-11 shrink-0 place-items-center rounded-full border-2 border-tinta bg-primario text-white shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50"
+      >
+        <Icono nombre="enviar" class="size-4" />
+      </button>
+    </form>
+  </div>
+
+  <!-- Moldes de burbuja que clona el script -->
+  <template data-molde="usuario"><p class={burbuja.usuario}></p></template>
+  <template data-molde="bot"><p class={burbuja.bot}></p></template>
+</div>
+
+<script>
+  import { DEMORA_RESPUESTA_MS, respuestaGenerica } from "../../lib/chatbot";
+  import type { MensajeChat } from "../../types";
+
+  function iniciar(raiz: HTMLElement): void {
+    const lista = raiz.querySelector<HTMLDivElement>("[data-mensajes]")!;
+    const form = raiz.querySelector<HTMLFormElement>("[data-form]")!;
+    const input = raiz.querySelector<HTMLInputElement>("[data-input]")!;
+    const botones = raiz.querySelectorAll<HTMLButtonElement>("button");
+    const grupos = raiz.querySelectorAll<HTMLDivElement>("[data-grupo]");
+
+    function bajarAlFinal(): void {
+      lista.scrollTop = lista.scrollHeight;
+    }
+
+    // Cambiar de grupo cambia el alto del pie, por eso se baja despues de mostrarlo
+    function mostrarGrupo(destino: string): void {
+      grupos.forEach((g) => (g.hidden = g.dataset.grupo !== destino));
+      bajarAlFinal();
+    }
+
+    // Un chip deshabilitado u oculto pierde el foco: se devuelve al menu visible
+    function enfocarMenu(preferido: HTMLButtonElement): void {
+      const activo = document.activeElement;
+      if (activo !== document.body && activo !== preferido) return; // ya esta escribiendo o en otro control
+      const visible = raiz.querySelector<HTMLButtonElement>("[data-grupo]:not([hidden]) button");
+      const chip = preferido.closest("[hidden]") ? visible : preferido;
+      chip?.focus({ preventScroll: true });
+    }
+
+    function agregarMensaje({ autor, texto }: MensajeChat): void {
+      const molde = raiz.querySelector<HTMLTemplateElement>(`[data-molde="${autor}"]`)!;
+      const burbuja = molde.content.firstElementChild!.cloneNode() as HTMLParagraphElement;
+      burbuja.textContent = texto;
+      lista.appendChild(burbuja);
+      bajarAlFinal();
+    }
+
+    // Mientras el bot "escribe" se bloquean chips y envio para que los pares no se mezclen
+    function conversar(textoUsuario: string, respuesta: string, alResponder?: () => void): void {
+      agregarMensaje({ autor: "usuario", texto: textoUsuario });
+      botones.forEach((b) => (b.disabled = true));
+      window.setTimeout(() => {
+        agregarMensaje({ autor: "bot", texto: respuesta });
+        botones.forEach((b) => (b.disabled = false));
+        alResponder?.();
+      }, DEMORA_RESPUESTA_MS);
+    }
+
+    raiz.querySelectorAll<HTMLButtonElement>("[data-destino]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const { respuesta, destino = "principal" } = chip.dataset;
+        const navegar = (): void => {
+          mostrarGrupo(destino);
+          enfocarMenu(chip);
+        };
+        // Sin respuesta es "Menu principal": solo navega, no agrega mensajes
+        if (respuesta) conversar(chip.textContent?.trim() ?? "", respuesta, navegar);
+        else navegar();
+      });
+    });
+
+    raiz.addEventListener("chat:abrir", () => mostrarGrupo("principal"));
+
+    // El submit cubre tanto el boton como la tecla Enter
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const texto = input.value.trim();
+      if (!texto) return;
+      input.value = "";
+      conversar(texto, respuestaGenerica);
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-chat-metas]").forEach(iniciar);
+</script>
