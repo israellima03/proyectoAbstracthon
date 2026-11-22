@@ -31,7 +31,7 @@ export function indiceMesUfv(fechaIso: string): number {
 }
 
 /** Depósito mínimo para comprar UFV por QR. */
-export const MINIMO_DEPOSITO_UFV = 30;
+export const MINIMO_DEPOSITO_UFV = 2;
 
 export const bsAUfv = (bs: number, valor = VALOR_UFV) => bs / valor;
 export const ufvABs = (ufv: number, valor = VALOR_UFV) => ufv * valor;

@@ -30,7 +30,7 @@ export const menuChatbot: Tema[] = [
       {
         pregunta: "¿Cómo obtengo UFV?",
         respuesta:
-          "Desde la pestaña UFVs, depositas desde tu Caja de Ahorros con un QR, sin ir al banco. El mínimo es de 30 UFV, unos Bs 76 al valor de hoy.",
+          "Desde la pestaña UFVs, depositas desde tu Caja de Ahorros con un QR, sin ir al banco. El mínimo es de 2 UFV, unos Bs 5 al valor de hoy.",
       },
       {
         pregunta: "¿Qué ventajas tengo si ahorro en UFV?",
@@ -129,7 +129,7 @@ const respuestas: { claves: string[]; texto: string }[] = [
   {
     claves: ["qr", "deposit", "transferir", "transferencia", "minimo"],
     texto:
-      "Puedes pasar dinero de tu caja de ahorros a tu cuenta en UFV con QR desde la seccion UFVs, sin ir al banco. El deposito minimo es de 30 UFV.",
+      "Puedes pasar dinero de tu caja de ahorros a tu cuenta en UFV con QR desde la seccion UFVs, sin ir al banco. El deposito minimo es de 2 UFV.",
   },
   {
     claves: ["cuanto vale", "valor de la ufv", "subio", "crecio", "historial", "2020"],

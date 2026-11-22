@@ -120,7 +120,7 @@ function registrarAhorroDelDia(ufv: number, retoExtra?: string): ResultadoAhorro
   const recupera = !estado.ayerCumplido;
   const diasSumados = recupera ? 2 : 1;
 
-  // 1 UFV por día como mínimo (el depósito mínimo de 30 UFV siempre lo cubre)
+  // 1 UFV por día como mínimo (el depósito mínimo de 2 UFV siempre lo cubre)
   if (estado.hoyCumplido || ufv < diasSumados) {
     guardarRacha(estado);
     return null;
