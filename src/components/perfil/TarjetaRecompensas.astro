@@ -1,0 +1,76 @@
+---
+/** Resumen de puntos. El catálogo completo se abre en HojaRecompensas. */
+import Icono from "../ui/Icono.astro";
+import { categoriasPremio, premios, racha } from "../../data/perfil";
+import { miles } from "./formato";
+
+const categorias = categoriasPremio.filter((c) => c.id !== "todas");
+const iconoCategoria = { megas: "celular", descuentos: "etiqueta", ufv: "moneda" } as const;
+---
+
+<section class="tarjeta p-4">
+  <div class="flex items-start justify-between gap-2">
+    <p class="text-[11px] font-bold tracking-wide text-tinta-suave uppercase">Tus puntos</p>
+    <span class="chip bg-alerta-suave text-[11px]">Por constancia</span>
+  </div>
+  <p class="mt-1 text-3xl font-extrabold text-primario">
+    <span data-puntos>{miles(racha.puntos)}</span> <span class="text-base">pts</span>
+  </p>
+  <p class="text-sm text-tinta-suave">
+    Puedes canjear <b data-canjeables class="text-tinta">0</b> de {premios.length} recompensas
+  </p>
+
+  <!-- Próxima recompensa -->
+  <div class="mt-3 rounded-xl border-2 border-tinta bg-fondo px-3 py-2">
+    <div class="flex items-center justify-between gap-2 text-xs font-semibold">
+      <span data-proxima-texto>Próxima recompensa</span>
+      <span data-proxima-faltan class="shrink-0 font-bold text-primario"></span>
+    </div>
+    <div class="mt-1.5 h-2.5 overflow-hidden rounded-full border-2 border-tinta bg-superficie">
+      <div data-proxima-barra class="h-full bg-primario transition-[width] duration-500" style="width:0%"></div>
+    </div>
+  </div>
+
+  <ul class="mt-3 grid grid-cols-3 gap-2">
+    {
+      categorias.map((c) => (
+        <li>
+          <button
+            type="button"
+            data-abrir="hoja-recompensas"
+            data-ir-categoria={c.id}
+            class="flex w-full flex-col items-center gap-1 rounded-xl border-2 border-tinta bg-primario-suave px-1 py-2 text-[11px] font-bold text-primario active:translate-y-px"
+          >
+            <Icono nombre={iconoCategoria[c.id as keyof typeof iconoCategoria]} class="size-5" />
+            {c.etiqueta}
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+
+  <button type="button" data-abrir="hoja-recompensas" class="btn-accion mt-3 w-full py-3 text-sm">
+    <Icono nombre="estrella" class="size-4" /> Ver todas las recompensas
+  </button>
+</section>
+
+<script>
+  import { premios } from "../../data/perfil";
+  import { alCambiar } from "./estado";
+  import { miles } from "./formato";
+
+  const uno = (sel: string) => document.querySelector<HTMLElement>(sel)!;
+
+  alCambiar((e) => {
+    document.querySelectorAll("[data-puntos]").forEach((el) => (el.textContent = miles(e.puntos)));
+    uno("[data-canjeables]").textContent = String(premios.filter((p) => p.costo <= e.puntos).length);
+
+    // La recompensa más barata que todavía no alcanza
+    const proxima = premios.filter((p) => p.costo > e.puntos).sort((a, b) => a.costo - b.costo)[0];
+    uno("[data-proxima-texto]").textContent = proxima
+      ? `Próxima: ${proxima.titulo}`
+      : "¡Te alcanza para todas las recompensas!";
+    uno("[data-proxima-faltan]").textContent = proxima ? `faltan ${miles(proxima.costo - e.puntos)} pts` : "";
+    uno("[data-proxima-barra]").style.width = `${proxima ? (e.puntos / proxima.costo) * 100 : 100}%`;
+  });
+</script>

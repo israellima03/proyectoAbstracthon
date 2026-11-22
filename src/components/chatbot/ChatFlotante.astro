@@ -1,97 +1,117 @@
 ---
 import Icono from "../ui/Icono.astro";
-import { preguntasRapidas } from "../../lib/chatbot";
+
+const mascota = "/img/mascota/BILLETE.jpg";
+const nombre = "Cecilio";
 ---
 
 <!-- Capa sobre la pantalla del celular (el padre del layout es `relative`) -->
 <div class="pointer-events-none absolute inset-0 z-50">
-  <!-- Botón flotante -->
+  <!-- Boton flotante: unico boton de chat de la app -->
   <button
     id="chat-boton"
     type="button"
-    aria-label="Abrir chat con la mascota"
     aria-expanded="false"
     aria-controls="chat-panel"
-    class="pointer-events-auto absolute right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] sm:bottom-[6.25rem] grid size-14 place-items-center rounded-full border-2 border-tinta bg-primario text-white shadow-duro transition-transform hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+    class="pointer-events-auto absolute right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] size-14 transition-transform hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] sm:bottom-[6.25rem]"
   >
-    <Icono nombre="chat" class="size-6" />
+    <span class="block size-full overflow-hidden rounded-full border-2 border-tinta bg-primario shadow-duro-sm">
+      <!-- La mascota ocupa el centro de la imagen cuadrada; scale-150 acerca la cara -->
+      <img
+        src={mascota}
+        alt={`Abrir chat con ${nombre}`}
+        width="56"
+        height="56"
+        class="size-full scale-150 object-cover"
+      />
+    </span>
     <span
       class="absolute -top-1 -right-1 size-4 rounded-full border-2 border-tinta bg-alerta"
       aria-hidden="true"></span>
   </button>
 
-  <!-- Panel del chat -->
-  <section
-    id="chat-panel"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="chat-titulo"
-    hidden
-    class="pointer-events-auto absolute inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] sm:bottom-[6.25rem] flex max-h-[calc(100%-7.5rem)] flex-col overflow-hidden rounded-2xl border-2 border-tinta bg-fondo shadow-duro-lg"
+  <!--
+    Burbuja de aviso a la izquierda del boton. Oculta por defecto (inert = sin foco
+    ni lector de pantalla); el script le pone data-visible durante 3 s cada 10 s.
+  -->
+  <button
+    id="chat-aviso"
+    type="button"
+    inert
+    class="pointer-events-none absolute right-[5.25rem] bottom-[calc(6.25rem+env(safe-area-inset-bottom))] translate-x-2 rounded-2xl border-2 border-tinta bg-superficie px-3 py-2 text-sm font-bold whitespace-nowrap opacity-0 shadow-duro-sm transition-[opacity,translate] duration-300 data-[visible]:pointer-events-auto data-[visible]:translate-x-0 data-[visible]:opacity-100 motion-reduce:transition-none sm:bottom-[7rem]"
   >
-    <!-- Cabecera -->
-    <header class="flex items-center gap-3 border-b-2 border-tinta bg-superficie px-4 py-3">
-      <!-- Marcador de posición de la MASCOTA (reemplazar por su imagen en /public/img/mascota) -->
+    Usa tu asistente virtual
+    <!-- Pico de la nube apuntando al boton -->
+    <span
+      class="absolute top-1/2 -right-[7px] size-3 -translate-y-1/2 rotate-45 border-t-2 border-r-2 border-tinta bg-superficie"
+      aria-hidden="true"></span>
+  </button>
+
+  <!-- Hoja inferior: fondo oscuro + panel. Oculta por defecto. -->
+  <div id="chat-capa" hidden class="pointer-events-auto absolute inset-0">
+    <div id="chat-fondo" class="absolute inset-0 bg-tinta/50" aria-hidden="true"></div>
+
+    <section
+      id="chat-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Chat con ${nombre}`}
+      class="absolute inset-x-0 bottom-0 flex h-[85%] flex-col overflow-hidden rounded-t-3xl border-2 border-b-0 border-tinta bg-fondo pb-[env(safe-area-inset-bottom)]"
+    >
+      <!-- Cabecera -->
+      <header class="flex items-center gap-3 border-b-2 border-tinta bg-superficie px-4 py-3">
+        <img
+          src={mascota}
+          alt=""
+          width="44"
+          height="44"
+          class="size-11 shrink-0 rounded-full border-2 border-tinta object-cover"
+        />
+        <div class="flex-1">
+          <h2 class="text-lg leading-tight font-extrabold">{nombre}</h2>
+          <p class="flex items-center gap-1.5 text-xs text-tinta-suave">
+            <span class="size-2 rounded-full bg-exito" aria-hidden="true"></span>
+            En linea
+          </p>
+        </div>
+        <button
+          id="chat-cerrar"
+          type="button"
+          aria-label="Cerrar chat"
+          class="grid size-9 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-superficie shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+        >
+          <Icono nombre="cerrar" class="size-4" />
+        </button>
+      </header>
+
+      <!-- Mensajes: empieza vacio -->
       <div
-        class="grid size-10 shrink-0 place-items-center rounded-full border-2 border-dashed border-tinta bg-primario-suave text-[9px] font-bold text-primario"
+        id="chat-mensajes"
+        class="flex flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-4 [scrollbar-width:none]"
+        aria-live="polite"
       >
-        Mascota
       </div>
-      <div class="flex-1">
-        <h2 id="chat-titulo" class="text-base leading-tight font-extrabold">Tu mascota</h2>
-        <p class="text-xs text-tinta-suave">Asistente de finanzas · en línea</p>
-      </div>
-      <button
-        id="chat-cerrar"
-        type="button"
-        aria-label="Cerrar chat"
-        class="grid size-9 place-items-center rounded-xl border-2 border-tinta bg-superficie shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-      >
-        <Icono nombre="cerrar" class="size-4" />
-      </button>
-    </header>
 
-    <!-- Mensajes -->
-    <div id="chat-mensajes" class="flex flex-1 flex-col gap-3 overflow-y-auto p-4" aria-live="polite">
-      <div class="max-w-[85%] self-start rounded-2xl rounded-tl-sm border-2 border-tinta bg-superficie px-3 py-2 text-sm">
-        ¡Hola! 👋 Soy tu mascota financiera. ¿En qué te ayudo hoy?
-      </div>
-    </div>
-
-    <!-- Preguntas rápidas -->
-    <div class="flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none]">
-      {
-        preguntasRapidas.map((p) => (
-          <button
-            type="button"
-            data-pregunta={p}
-            class="chip shrink-0 bg-primario-suave py-1 text-primario hover:bg-primario hover:text-white"
-          >
-            {p}
-          </button>
-        ))
-      }
-    </div>
-
-    <!-- Entrada -->
-    <form id="chat-form" class="flex items-center gap-2 border-t-2 border-tinta bg-superficie p-3">
-      <label for="chat-input" class="sr-only">Escribe tu mensaje</label>
-      <input
-        id="chat-input"
-        type="text"
-        autocomplete="off"
-        placeholder="Escribe tu pregunta..."
-        class="min-w-0 flex-1 rounded-xl border-2 border-tinta bg-fondo px-3 py-2 text-sm outline-none placeholder:text-tinta-suave focus:bg-superficie focus:ring-2 focus:ring-primario-claro"
-      />
-      <button
-        type="submit"
-        aria-label="Enviar"
-        class="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-tinta bg-accion text-white shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-      >
-        <Icono nombre="enviar" class="size-4" />
-      </button>
-    </form>
-  </section>
+      <!-- Entrada -->
+      <form id="chat-form" class="flex items-center gap-2 border-t-2 border-tinta bg-superficie p-3">
+        <label for="chat-input" class="sr-only">Escribe tu mensaje</label>
+        <input
+          id="chat-input"
+          type="text"
+          autocomplete="off"
+          placeholder={`Escribe a ${nombre}...`}
+          class="min-w-0 flex-1 rounded-full border-2 border-tinta bg-fondo px-4 py-2.5 text-sm outline-none placeholder:text-tinta-suave focus:bg-superficie focus:ring-2 focus:ring-primario-claro"
+        />
+        <button
+          type="submit"
+          aria-label="Enviar"
+          class="grid size-11 shrink-0 place-items-center rounded-full border-2 border-tinta bg-primario text-white shadow-duro-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+        >
+          <Icono nombre="enviar" class="size-4" />
+        </button>
+      </form>
+    </section>
+  </div>
 </div>
 
 <script>
@@ -99,54 +119,73 @@ import { preguntasRapidas } from "../../lib/chatbot";
   import type { MensajeChat } from "../../types";
 
   const boton = document.getElementById("chat-boton") as HTMLButtonElement;
-  const panel = document.getElementById("chat-panel") as HTMLElement;
+  const capa = document.getElementById("chat-capa") as HTMLDivElement;
+  const fondo = document.getElementById("chat-fondo") as HTMLDivElement;
   const cerrar = document.getElementById("chat-cerrar") as HTMLButtonElement;
   const form = document.getElementById("chat-form") as HTMLFormElement;
   const input = document.getElementById("chat-input") as HTMLInputElement;
   const lista = document.getElementById("chat-mensajes") as HTMLDivElement;
 
+  // Burbuja de aviso: aparece cada 10 s y se queda visible 3 s
+  const aviso = document.getElementById("chat-aviso") as HTMLButtonElement;
+  const CADA_MS = 10_000;
+  const VISIBLE_MS = 3_000;
+  let temporizadorOcultar: number | undefined;
+
+  function mostrarAviso(visible: boolean) {
+    aviso.toggleAttribute("data-visible", visible);
+    aviso.inert = !visible;
+  }
+
+  setInterval(() => {
+    if (!capa.hidden) return; // con el chat abierto no se muestra
+    mostrarAviso(true);
+    clearTimeout(temporizadorOcultar);
+    temporizadorOcultar = window.setTimeout(() => mostrarAviso(false), VISIBLE_MS);
+  }, CADA_MS);
+
+  aviso.addEventListener("click", () => abrir(true));
+
   function abrir(abierto: boolean) {
-    panel.hidden = !abierto;
-    boton.hidden = abierto;
+    if (abierto) {
+      clearTimeout(temporizadorOcultar);
+      mostrarAviso(false);
+    }
+    capa.hidden = !abierto;
     boton.setAttribute("aria-expanded", String(abierto));
     if (abierto) input.focus();
     else boton.focus();
   }
 
-  function agregarMensaje({ autor, texto }: MensajeChat): HTMLDivElement {
-    const burbuja = document.createElement("div");
+  function agregarMensaje({ autor, texto }: MensajeChat): HTMLParagraphElement {
+    const burbuja = document.createElement("p");
     burbuja.className =
       autor === "usuario"
-        ? "max-w-[85%] self-end rounded-2xl rounded-tr-sm border-2 border-tinta bg-primario px-3 py-2 text-sm text-white"
-        : "max-w-[85%] self-start rounded-2xl rounded-tl-sm border-2 border-tinta bg-superficie px-3 py-2 text-sm";
+        ? "max-w-[85%] self-end rounded-2xl rounded-tr-sm border-2 border-tinta bg-primario px-3 py-2 text-sm text-white shadow-duro-sm"
+        : "max-w-[85%] self-start rounded-2xl rounded-tl-sm border-2 border-tinta bg-superficie px-3 py-2 text-sm shadow-duro-sm";
     burbuja.textContent = texto;
     lista.appendChild(burbuja);
     lista.scrollTop = lista.scrollHeight;
     return burbuja;
   }
 
-  async function enviar(texto: string) {
-    const limpio = texto.trim();
-    if (!limpio) return;
-    agregarMensaje({ autor: "usuario", texto: limpio });
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const texto = input.value.trim();
+    if (!texto) return;
+    agregarMensaje({ autor: "usuario", texto });
     input.value = "";
     const escribiendo = agregarMensaje({ autor: "bot", texto: "Escribiendo..." });
     escribiendo.classList.add("italic", "text-tinta-suave");
-    const respuesta = await obtenerRespuesta(limpio);
+    const respuesta = await obtenerRespuesta(texto);
     escribiendo.remove();
     agregarMensaje({ autor: "bot", texto: respuesta });
-  }
+  });
 
   boton.addEventListener("click", () => abrir(true));
   cerrar.addEventListener("click", () => abrir(false));
+  fondo.addEventListener("click", () => abrir(false));
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !panel.hidden) abrir(false);
+    if (e.key === "Escape" && !capa.hidden) abrir(false);
   });
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    enviar(input.value);
-  });
-  panel.querySelectorAll<HTMLButtonElement>("[data-pregunta]").forEach((b) =>
-    b.addEventListener("click", () => enviar(b.dataset.pregunta ?? "")),
-  );
 </script>
